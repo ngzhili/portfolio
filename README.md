@@ -120,7 +120,7 @@ In your repo on GitHub: **Settings → Pages → Build and deployment → Source
 
 The included workflow (`.github/workflows/deploy.yml`) runs on every push to
 `main`: it installs deps, builds the static export to `out/` (with `.nojekyll`),
-and deploys to Pages. Watch progress in the **Actions** tab; your site goes live
+and deploys to Pages. Watch progress in the **Actions** tab; your site goes live 
 at `https://<your-username>.github.io/<your-repo>/`.
 
 ---
