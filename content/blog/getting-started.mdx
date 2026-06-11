@@ -1,0 +1,56 @@
+---
+title: "Getting Started With This Portfolio"
+date: "2025-01-15"
+excerpt: "A quick tour of how this site is built and how to make it your own in minutes."
+tags: ["meta", "guide"]
+author: "Your Name"
+---
+
+# Getting Started
+
+Welcome to your new portfolio! This post is a sample written in **MDX** — Markdown
+with the power of components. Edit or delete it, then add your own posts in
+`content/blog/`.
+
+## How posts work
+
+Every `.mdx` file in `content/blog/` becomes a page. The frontmatter at the top
+(between the `---` lines) sets the title, date, excerpt, and tags:
+
+```yaml
+---
+title: "My Post Title"
+date: "2025-02-01"
+excerpt: "A one-line summary shown on the blog index."
+tags: ["nextjs", "career"]
+---
+```
+
+The filename becomes the URL slug, so `content/blog/my-post.mdx` is served at
+`/blog/my-post`.
+
+## Markdown you can use
+
+You get all the usual goodies:
+
+- **Bold** and _italic_ text
+- [Links](https://nextjs.org)
+- Lists (like this one)
+- `inline code` and fenced code blocks
+- > Blockquotes for emphasis
+
+### Code blocks
+
+```ts
+function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
+```
+
+## Make it yours
+
+1. Edit `content/site.ts` to set your name, links, projects, and skills.
+2. Replace the posts in `content/blog/` with your own writing.
+3. Drop your résumé at `public/resume.pdf`.
+
+That's it — happy shipping! 🚀

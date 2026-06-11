@@ -1,0 +1,165 @@
+/**
+ * Global styles + design tokens (Tailwind CSS v4).
+ *
+ * Tailwind v4 is configured here in CSS via @theme — there is NO
+ * tailwind.config.js. To tweak the palette, fonts, or accents, edit the
+ * @theme block below; the new utility classes are generated automatically.
+ */
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand palette: deep near-black + electric violet & cyan ──────────── */
+  /* These are the DARK theme values (the default). The light theme overrides
+     the same custom properties under `html.light` further below, so every
+     Tailwind color utility re-themes automatically. */
+  --color-bg: #08080c;           /* page background (near-black) */
+  --color-surface: #0f0f17;      /* cards / raised surfaces */
+  --color-surface-2: #16161f;    /* hover / nested surfaces */
+  --color-border: #232331;       /* hairline borders */
+
+  --color-text: #f4f4f6;         /* primary text (high contrast) */
+  --color-muted: #a1a1b5;        /* secondary text (AA on bg) */
+  --color-faint: #6c6c82;        /* tertiary / captions */
+
+  --color-accent: #8b5cf6;       /* violet — primary accent */
+  --color-accent-strong: #a78bfa;
+  --color-cyan: #22d3ee;         /* cyan — secondary accent */
+
+  /* ── Fonts (wired to next/font CSS variables in layout.tsx) ──────────── */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), sans-serif;
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  --radius-card: 1rem;
+}
+
+/* ── Light theme overrides ─────────────────────────────────────────────────
+   Applied when <html> has the `light` class (toggled by ThemeToggle, set
+   pre-paint by the inline script in layout.tsx to avoid a flash). Accent +
+   cyan are darkened for AA contrast on light surfaces. */
+html.light {
+  --color-bg: #fafafb;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f1f6;
+  --color-border: #e4e4ee;
+
+  --color-text: #16161d;
+  --color-muted: #4b4b5e;
+  --color-faint: #7a7a8c;
+
+  --color-accent: #7c3aed;
+  --color-accent-strong: #6d28d9;
+  --color-cyan: #0e7490;
+}
+
+/* Match native UI (scrollbars, form controls) to the active theme. */
+html { color-scheme: dark; }
+html.light { color-scheme: light; }
+
+/* ── Base element styles ──────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Account for the fixed navbar height when jumping to #anchors. */
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Subtle radial accents in the background — purely decorative. */
+    background-image:
+      radial-gradient(60rem 60rem at 80% -10%, rgba(139, 92, 246, 0.12), transparent 60%),
+      radial-gradient(50rem 50rem at -10% 10%, rgba(34, 211, 238, 0.08), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  /* Visible, accessible focus ring for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-strong);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Respect users who prefer reduced motion: disable smooth scroll + anim. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Reusable gradient text for accent headings. */
+  .text-gradient {
+    background-image: linear-gradient(110deg, var(--color-accent-strong), var(--color-cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Prose tweaks for blog post content (we render MDX into .prose-portfolio). */
+.prose-portfolio {
+  color: var(--color-text);
+  max-width: 70ch;
+}
+.prose-portfolio h1,
+.prose-portfolio h2,
+.prose-portfolio h3 { margin-top: 2rem; margin-bottom: 0.75rem; }
+.prose-portfolio h1 { font-size: clamp(1.875rem, 5vw, 2.5rem); }
+.prose-portfolio h2 { font-size: clamp(1.5rem, 4vw, 1.875rem); }
+.prose-portfolio h3 { font-size: 1.25rem; }
+.prose-portfolio p,
+.prose-portfolio ul,
+.prose-portfolio ol,
+.prose-portfolio blockquote { margin-bottom: 1.1rem; }
+.prose-portfolio ul { list-style: disc; padding-left: 1.5rem; }
+.prose-portfolio ol { list-style: decimal; padding-left: 1.5rem; }
+.prose-portfolio li { margin-bottom: 0.4rem; }
+.prose-portfolio a { color: var(--color-cyan); text-decoration: underline; text-underline-offset: 3px; }
+.prose-portfolio a:hover { color: var(--color-accent-strong); }
+.prose-portfolio blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+.prose-portfolio code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  background: var(--color-surface-2);
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+  border: 1px solid var(--color-border);
+}
+.prose-portfolio pre {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.prose-portfolio pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}

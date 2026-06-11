@@ -1,0 +1,48 @@
+---
+title: "Why I Build With Next.js and Static Export"
+date: "2025-02-02"
+excerpt: "Static sites are fast, cheap, and durable. Here's why Next.js static export is a great fit for a personal site."
+tags: ["nextjs", "performance", "web"]
+author: "Your Name"
+---
+
+# Why Static Export?
+
+This site is a **statically exported** Next.js app — every page is plain HTML,
+CSS, and JS generated at build time. No server, no database, no runtime cost.
+That makes it perfect for free hosting on GitHub Pages.
+
+## The benefits
+
+- **Speed.** Pre-rendered HTML loads instantly; there's nothing to compute on
+  request.
+- **Cost.** Static hosting is free or near-free, and it scales effortlessly.
+- **Durability.** No server to patch, crash, or get hacked.
+- **Simplicity.** Push to `main`, a GitHub Action builds and deploys. Done.
+
+## The trade-offs
+
+Static export means no server-side features at request time:
+
+- No API routes or server actions at runtime.
+- No on-demand Image Optimization (we set `images.unoptimized: true`).
+- Dynamic data must be fetched **at build time** or on the **client**.
+
+For a portfolio, none of that matters — the content is yours and changes when
+*you* rebuild.
+
+## How the blog works here
+
+Posts are MDX files read from disk during the build:
+
+```ts
+const posts = getAllPosts(); // reads content/blog/*.mdx at build time
+```
+
+Each post gets its own statically generated route via `generateStaticParams`.
+Fast to serve, easy to write.
+
+> The best stack is the one that gets out of your way. For a personal site,
+> static Next.js does exactly that.
+
+Happy building!
