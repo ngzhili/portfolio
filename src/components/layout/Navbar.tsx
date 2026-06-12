@@ -109,7 +109,7 @@ export function Navbar() {
           className="font-display text-lg font-bold tracking-tight text-text"
           onClick={() => setOpen(false)}
         >
-          {site.name.split(' ')[0]}
+          {site.name.split(' ')[1]}
           <span className="text-accent-strong">.</span>
         </Link>
 

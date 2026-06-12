@@ -4,7 +4,7 @@
  *
  * Site-wide text (name, role, URL) comes from content/site.ts — edit there.
  */
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
@@ -32,6 +32,15 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description: site.tagline,
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
   keywords: ['portfolio', 'software developer', 'web developer', site.name],
   authors: [{ name: site.name }],
   creator: site.name,
@@ -50,6 +59,10 @@ export const metadata: Metadata = {
     images: [site.ogImage],
   },
   robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#8b5cf6',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

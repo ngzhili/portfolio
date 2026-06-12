@@ -7,6 +7,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
+import { ShaderBackground } from '@/components/ui/ShaderBackground';
 import { site, socials } from '@content/site';
 import {
   GitHubIcon,
@@ -37,13 +38,23 @@ export function Hero() {
   // Fade the scroll cue out as the user leaves the hero.
   const { scrollY } = useScroll();
   const cueOpacity = useTransform(scrollY, [0, 200], [1, 0]);
+  // Fade the shader background out over the first chunk of scroll.
+  const shaderOpacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
     <section
       id="home"
       className="relative flex min-h-[100svh] items-center overflow-hidden pt-16"
     >
-      <Container className="py-20">
+      {/* Animated aurora-streak background — fades as you scroll past. */}
+      <motion.div
+        style={{ opacity: shaderOpacity }}
+        className="pointer-events-none absolute inset-0 z-0"
+      >
+        <ShaderBackground />
+      </motion.div>
+
+      <Container className="relative z-10 py-20">
         <motion.div
           variants={container}
           initial="hidden"

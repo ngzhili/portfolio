@@ -18,7 +18,16 @@
       "Bash(grep -oE 'bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted\">.{0,160}' out/index.html)",
       "Bash(python3 -c ' *)",
       "Bash(python3 -c \"from PIL import Image; im=Image.open\\('public/publications/syntable-teaser.png'\\); print\\(im.size, round\\(im.size[0]/im.size[1],3\\)\\)\")",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(npm -v)",
+      "Bash(node -e \"let p=require\\('./package.json'\\);console.log\\(JSON.stringify\\(p.dependencies,null,1\\)\\)\")",
+      "Bash(npm ci *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npx eslint *)",
+      "Bash(unzip -o /home/nzhili/gitlab/portfolio/favicon_io.zip -d fav_extract)",
+      "Bash(rm -f src/app/icon.svg)",
+      "Bash(cp /tmp/fav_extract/favicon.ico /tmp/fav_extract/favicon-16x16.png /tmp/fav_extract/favicon-32x32.png /tmp/fav_extract/apple-touch-icon.png /tmp/fav_extract/android-chrome-192x192.png /tmp/fav_extract/android-chrome-512x512.png public/)"
     ],
     "additionalDirectories": [
       "/tmp"
