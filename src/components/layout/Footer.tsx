@@ -37,7 +37,7 @@ export function Footer() {
 
         <Link
           href="/blog"
-          className="text-sm text-muted transition-colors hover:text-text sm:hidden"
+          className="hidden text-sm text-muted transition-colors hover:text-text"
         >
           Read the blog →
         </Link>
