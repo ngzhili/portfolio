@@ -28,7 +28,10 @@
       "Bash(unzip -o /home/nzhili/gitlab/portfolio/favicon_io.zip -d fav_extract)",
       "Bash(rm -f src/app/icon.svg)",
       "Bash(cp /tmp/fav_extract/favicon.ico /tmp/fav_extract/favicon-16x16.png /tmp/fav_extract/favicon-32x32.png /tmp/fav_extract/apple-touch-icon.png /tmp/fav_extract/android-chrome-192x192.png /tmp/fav_extract/android-chrome-512x512.png public/)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(mv \"Infocomm_Media_Development_Authority_logo.svg.png\" imda-logo.png)",
+      "Bash(mv \"Ministry_of_Education_\\(Singapore\\)_logo.svg.png\" moe-logo.png)",
+      "Bash(echo \"exit:$?\")"
     ],
     "additionalDirectories": [
       "/tmp"

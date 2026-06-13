@@ -7,6 +7,8 @@ import { Experience } from '@/components/sections/Experience';
 import { Projects } from '@/components/sections/Projects';
 import { Publications } from '@/components/sections/Publications';
 import { Skills } from '@/components/sections/Skills';
+import { Certifications } from '@/components/sections/Certifications';
+import { Awards } from '@/components/sections/Awards';
 import { About } from '@/components/sections/About';
 import { Contact } from '@/components/sections/Contact';
 
@@ -18,6 +20,8 @@ export default function HomePage() {
       <Projects />
       <Publications />
       <Skills />
+      <Certifications />
+      <Awards />
       <About />
       <Contact />
     </>
