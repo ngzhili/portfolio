@@ -25,7 +25,7 @@ export const site = {
   tagline: 'I design and scale production GenAI systems — agents, RAG, and the platforms behind them.',
   // The longer intro paragraph in the hero.
   intro:
-    'Lead Solutions Architect and Full-Stack Software Engineer with 3+ years in Generative AI, full-stack web, and backend development. I build production GenAIOps pipelines, multilingual multimodal RAG with citations, and agentic applications — from business requirements to deployment at scale.',
+    'Lead Solutions Architect and Full-Stack Software Engineer with 5+ years in Generative AI, full-stack web, and backend development. I build production GenAIOps pipelines, multilingual multimodal RAG with citations, and agentic applications — from business requirements to deployment at scale.',
   // Default Open Graph / social share image (lives in /public).
   // NOTE: this ships as an SVG placeholder. For best social-preview support,
   // replace it with a 1200×630 PNG/JPG and update the path (e.g. '/og-image.png').
@@ -312,7 +312,7 @@ export const skills: SkillGroup[] = [
 export const about = {
   // Each string is a paragraph.
   bio: [
-    'I’m Ng Zhili, a Lead Solutions Architect and Full-Stack Software Engineer specializing in Generative AI. Over the past 3+ years I’ve designed and scaled production GenAIOps pipelines serving 2000+ users and led teams of 20+ engineers and analysts.',
+    'I’m Ng Zhili, a Lead Solutions Architect and Full-Stack Software Engineer specializing in Generative AI. Over the past 5+ years I’ve designed and scaled production GenAIOps pipelines serving 2000+ users and led teams of 20+ engineers and analysts.',
     'I build multilingual, multimodal RAG and citation systems, agentic full-stack applications, and the runtime, observability, and evaluation infrastructure behind them — taking products from business requirements all the way to production deployment.',
     'I hold a First-Class BEng in Mechanical Engineering (Robotics) with a Computer Science minor from NUS, where I was on the Dean’s List, named NUS Outstanding Undergraduate Researcher (Individual), and received the NUS CDE Innovation & Research Award (High Achievement). Outside of work, I enjoy running, swimming, and hiking.',
   ],
