@@ -9,7 +9,7 @@ const links = [
   { href: `mailto:${socials.email}`, label: 'Email', Icon: MailIcon },
   { href: socials.github, label: 'GitHub', Icon: GitHubIcon },
   { href: socials.linkedin, label: 'LinkedIn', Icon: LinkedInIcon },
-  { href: socials.website, label: 'Website', Icon: GlobeIcon },
+  // { href: socials.website, label: 'Website', Icon: GlobeIcon },
 ];
 
 export function Footer() {

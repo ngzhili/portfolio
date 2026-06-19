@@ -41,7 +41,7 @@ export const socials = {
   email: 'ng.zhili@gmail.com',
   github: 'https://github.com/ngzhili',
   linkedin: 'https://www.linkedin.com/in/ngzhili',
-  website: 'https://ngzhili.github.io/portfolio/',
+  // website: 'https://ngzhili.github.io/portfolio/',
 } as const;
 
 // Path (inside /public) to a downloadable resume.
