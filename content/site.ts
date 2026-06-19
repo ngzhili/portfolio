@@ -673,7 +673,7 @@ export const about = {
   bio: [
     'I’m Ng Zhili, a Lead Solutions Architect and Full-Stack Software Engineer specializing in Generative AI. Over the past 5+ years I’ve designed and scaled production GenAIOps pipelines serving 2000+ users and led teams of 20+ engineers and analysts.',
     'I build multilingual, multimodal RAG and citation systems, agentic full-stack applications, and the runtime, observability, and evaluation infrastructure behind them — taking products from business requirements all the way to production deployment.',
-    'I hold a First-Class BEng in Mechanical Engineering (Robotics) with a Computer Science minor from NUS, where I was on the Dean’s List, named NUS Outstanding Undergraduate Researcher (Individual), and received the NUS CDE Innovation & Research Award (High Achievement). Outside of work, I enjoy running, swimming, and hiking.',
+    'I hold a First-Class BEng in Mechanical Engineering (Robotics) with a Computer Science minor and completed the University Scholars Programme (USP) from NUS. Outside of work, I enjoy running, swimming, and hiking.',
   ],
   // Quick stat highlights shown beside the bio.
   stats: [
