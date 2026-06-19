@@ -8,7 +8,7 @@
   <rect width="1200" height="630" fill="#08080c"/>
   <circle cx="980" cy="120" r="280" fill="url(#og)" opacity="0.25"/>
   <circle cx="180" cy="560" r="220" fill="url(#og)" opacity="0.18"/>
-  <text x="90" y="300" font-family="Space Grotesk, Arial, sans-serif" font-size="84" font-weight="700" fill="#f4f4f6">Your Name</text>
-  <text x="92" y="372" font-family="Inter, Arial, sans-serif" font-size="36" fill="#a1a1b5">Software &amp; Web Developer</text>
+  <text x="90" y="300" font-family="Space Grotesk, Arial, sans-serif" font-size="84" font-weight="700" fill="#f4f4f6">Ng Zhili</text>
+  <text x="92" y="372" font-family="Inter, Arial, sans-serif" font-size="36" fill="#a1a1b5">Lead Solutions Architect &amp; Full-Stack Engineer (GenAI)</text>
   <rect x="92" y="420" width="180" height="8" rx="4" fill="url(#og)"/>
 </svg>

@@ -11,6 +11,7 @@ import { Container } from '@/components/layout/Container';
 import { Tag } from '@/components/ui/Tag';
 import { getAllPosts, getPostBySlug, getPostSlugs, formatDate } from '@/lib/blog';
 import { ArrowRightIcon } from '@/components/ui/icons';
+import { SITE_URL } from '@content/site';
 
 type Params = { slug: string };
 
@@ -31,6 +32,7 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
+    alternates: { canonical: `${SITE_URL}/blog/${slug}/` },
     openGraph: {
       type: 'article',
       title: post.title,

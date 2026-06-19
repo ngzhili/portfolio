@@ -9,10 +9,12 @@ import { Reveal } from '@/components/ui/Reveal';
 import { Tag } from '@/components/ui/Tag';
 import { getAllPosts, formatDate } from '@/lib/blog';
 import { ArrowRightIcon } from '@/components/ui/icons';
+import { SITE_URL } from '@content/site';
 
 export const metadata: Metadata = {
   title: 'Blog',
   description: 'Articles and notes on web development, engineering, and what I’m learning.',
+  alternates: { canonical: `${SITE_URL}/blog/` },
   openGraph: {
     title: 'Blog',
     description: 'Articles and notes on web development, engineering, and what I’m learning.',

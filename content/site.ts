@@ -27,9 +27,10 @@ export const site = {
   intro:
     'Lead Solutions Architect and Full-Stack Software Engineer with 5+ years in Generative AI, full-stack web, and backend development. I build production GenAIOps pipelines, multilingual multimodal RAG with citations, and agentic applications — from business requirements to deployment at scale.',
   // Default Open Graph / social share image (lives in /public).
-  // NOTE: this ships as an SVG placeholder. For best social-preview support,
-  // replace it with a 1200×630 PNG/JPG and update the path (e.g. '/og-image.png').
-  ogImage: '/og-image.svg',
+  // ABSOLUTE URL is required: metadataBase has a subpath (/portfolio), and a
+  // leading-slash relative path would resolve to the origin only, dropping the
+  // subpath (→ 404). The PNG is generated from og-image.svg via sharp.
+  ogImage: `${SITE_URL}/og-image.png`,
   // Your location (optional — shown in About).
   location: 'Singapore',
 } as const;

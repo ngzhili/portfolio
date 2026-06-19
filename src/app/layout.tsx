@@ -9,6 +9,7 @@ import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { site, SITE_URL } from '@content/site';
 
 // Body font: clean, highly legible sans.
@@ -59,6 +60,15 @@ export const metadata: Metadata = {
     images: [site.ogImage],
   },
   robots: { index: true, follow: true },
+  alternates: { canonical: SITE_URL },
+  // Search-engine ownership verification. Fill these in AFTER deploying:
+  //   • google: token from Google Search Console (HTML-tag method)
+  //   • msvalidate.01: token from Bing Webmaster Tools (meta-tag method)
+  // Leaving them empty is harmless — the meta tags are simply omitted.
+  verification: {
+    google: '',
+    other: { 'msvalidate.01': '' },
+  },
 };
 
 export const viewport: Viewport = {
@@ -83,6 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';if(t==='light'){document.documentElement.classList.add('light');}document.documentElement.style.colorScheme=t;}catch(e){}})();`,
           }}
         />
+        <JsonLd />
       </head>
       <body className="min-h-screen antialiased">
         {/* Keyboard users can jump straight to content. */}
