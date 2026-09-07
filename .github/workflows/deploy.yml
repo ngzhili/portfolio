@@ -35,6 +35,13 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # Node 24.15+ ships npm 12, which rejects lockfiles written by npm 11
+      # (it demands top-level @emnapi/* entries that npm 11 strips out).
+      # Pin npm to the version used locally so the lockfile is validated by
+      # the same npm that writes it. Bump both together, never just one.
+      - name: Pin npm
+        run: npm install -g npm@11.6.1
+
       - name: Install dependencies
         run: npm ci
 
