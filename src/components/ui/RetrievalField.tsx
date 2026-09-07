@@ -8,13 +8,22 @@
  * its top-k nearest chunks light up in cyan, hold, then fade — the retrieval
  * step of a RAG pipeline, rendered literally.
  *
+ * It's also interactive: clicking anywhere in the hero drops your own query at
+ * that spot and retrieves its top-k, with a dashed ring at its live retrieval
+ * radius. Pins stack up to MAX_PINS and fade out on their own after a few
+ * seconds, so the field always settles back to rest.
+ *
+ * Each query names its single nearest chunk, so the picture reads as retrieval
+ * rather than as decoration. Exactly one label is on screen at any moment —
+ * the newest live pin owns it, or the ambient query when no pin does.
+ *
  * Canvas 2D on purpose. The whole frame is three batched paths (~200 line
- * segments + 140 arcs), capped at 30fps, so it costs a fraction of a
- * millisecond and never competes with the compositor during scroll. It pauses
- * offscreen and in background tabs, and renders one static frame under
- * prefers-reduced-motion.
+ * segments + 140 arcs) plus a handful of small per-pin paths, capped at 30fps,
+ * so it costs a fraction of a millisecond and never competes with the
+ * compositor during scroll. It pauses offscreen and in background tabs, and
+ * renders one static frame under prefers-reduced-motion.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 const N = 140; // chunks in the field
 const K = 5; // top-k lit by each query
@@ -31,6 +40,21 @@ const T_HOLD = 1400;
 const T_FADE = 800;
 const T_RING = 600; // expanding ring on arrival
 const T_LIT_RAMP = 300; // fade-in for the lit neighbours
+
+// Click-pinned queries.
+const MAX_PINS = 5; // live pins; a further click retires the oldest
+const T_PIN_IN = 300; // ramp-in
+const T_PIN_LIFE = 5500; // how long a pin holds before fading on its own
+const T_PIN_OUT = 600; // retirement fade
+const T_PIN_RING = 700; // arrival pulse out to the retrieval radius
+const CLICK_SLOP = 6; // px of movement still counted as a click, not a drag
+const CLICK_MS = 600; // ms held still counted as a click
+const HIDDEN_OPACITY = 0.15; // below this the field is scrolled away — ignore clicks
+const LABEL_FONT = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+const LABEL_GAP = 7; // px between the chunk dot and its label
+const LABEL_FLIP = 140; // px from the right edge — hang the label left instead
+const RING_DASH = [2, 4];
+const NO_DASH: number[] = [];
 
 // Hero copy geometry: Container is max-w-6xl (1152) with px-8, the copy block
 // inside it is max-w-3xl (768). Points are seeded sparsely to the left of this
@@ -67,8 +91,26 @@ function parseHex(hex: string, fallback: RGB): RGB {
 
 const easeOutCubic = (p: number) => 1 - Math.pow(1 - p, 3);
 
-export function RetrievalField() {
+export type RetrievalFieldProps = {
+  /**
+   * Element to listen on for clicks. The canvas itself sits under a
+   * `pointer-events-none` wrapper and the hero copy, so the hero <section> is
+   * the right target: clicks bubble to it from everywhere except the links,
+   * and text selection on the headline keeps working. Defaults to the canvas.
+   */
+  interactionRef?: RefObject<HTMLElement | null>;
+  /**
+   * Short strings the chunks stand for; each query names its nearest one.
+   * Omit (or pass an empty array) to draw no labels at all.
+   */
+  labels?: string[];
+};
+
+export function RetrievalField({ interactionRef, labels }: RetrievalFieldProps = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // The effect runs once; read the latest value through a ref.
+  const labelsRef = useRef(labels);
+  labelsRef.current = labels;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -87,11 +129,13 @@ export function RetrievalField() {
     const phX = new Float32Array(N);
     const phY = new Float32Array(N);
     const rad = new Float32Array(N);
+    const label = new Int16Array(N); // index into labelsRef; fixed per chunk
     const px = new Float32Array(N);
     const py = new Float32Array(N);
 
     const topK = new Int32Array(K);
     const topD2 = new Float32Array(K);
+    const pinD2 = new Float32Array(K); // scratch for a pin's retrieval
 
     let W = 0;
     let H = 0;
@@ -117,6 +161,16 @@ export function RetrievalField() {
       x: 0,
       y: 0,
     };
+
+    /** A query the visitor pinned by clicking. */
+    type Pin = {
+      x: number;
+      y: number;
+      born: number; // ms timestamp; 0 = appear fully formed (reduced motion)
+      retiring: number; // 0 = live, else the ms timestamp the fade began
+      k: Int32Array; // neighbour indices, frozen at click time
+    };
+    const pins: Pin[] = [];
 
     const rgba = (c: RGB, a: number) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
@@ -158,6 +212,24 @@ export function RetrievalField() {
         phY[i] = Math.random() * TAU;
         rad[i] = 1.3 + Math.random() * 0.9;
       }
+
+      // Fixed for the chunk's lifetime: probing the same spot twice has to
+      // surface the same word, or the labels read as noise rather than as an
+      // identity the chunk has. Round-robin then shuffle, so every word gets
+      // used a similar number of times — picking at random piles six chunks
+      // onto one word and leaves others never seen.
+      const pool = labelsRef.current;
+      if (pool && pool.length > 0) {
+        for (let i = 0; i < N; i++) label[i] = i % pool.length;
+        for (let i = N - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = label[i];
+          label[i] = label[j];
+          label[j] = tmp;
+        }
+      } else {
+        label.fill(-1);
+      }
     };
 
     // ── Query ───────────────────────────────────────────────────────────────
@@ -181,24 +253,29 @@ export function RetrievalField() {
     };
 
     /** One pass, squared distances, insertion into a K-slot sorted array. */
-    const computeTopK = () => {
+    const computeTopK = (
+      qx: number,
+      qy: number,
+      outK: Int32Array,
+      outD2: Float32Array
+    ) => {
       for (let k = 0; k < K; k++) {
-        topK[k] = -1;
-        topD2[k] = Infinity;
+        outK[k] = -1;
+        outD2[k] = Infinity;
       }
       for (let i = 0; i < N; i++) {
-        const dx = px[i] - q.x;
-        const dy = py[i] - q.y;
+        const dx = px[i] - qx;
+        const dy = py[i] - qy;
         const d2 = dx * dx + dy * dy;
-        if (d2 >= topD2[K - 1]) continue;
+        if (d2 >= outD2[K - 1]) continue;
         let k = K - 1;
-        while (k > 0 && topD2[k - 1] > d2) {
-          topD2[k] = topD2[k - 1];
-          topK[k] = topK[k - 1];
+        while (k > 0 && outD2[k - 1] > d2) {
+          outD2[k] = outD2[k - 1];
+          outK[k] = outK[k - 1];
           k--;
         }
-        topD2[k] = d2;
-        topK[k] = i;
+        outD2[k] = d2;
+        outK[k] = i;
       }
     };
 
@@ -224,7 +301,7 @@ export function RetrievalField() {
           q.x = q.fromX + (q.toX - q.fromX) * e;
           q.y = q.fromY + (q.toY - q.fromY) * e;
           if (p >= 1) {
-            computeTopK();
+            computeTopK(q.x, q.y, topK, topD2);
             q.phase = 'hold';
             q.start = now;
           }
@@ -276,8 +353,108 @@ export function RetrievalField() {
       ctx.fillStyle = rgba(accent, alpha.dot);
       ctx.fill();
 
+      // Pinned queries, under the ambient one. Each pin's neighbour *set* was
+      // frozen at click time — drawing it at live positions lets the spokes
+      // follow the drifting chunks without ever reordering (which would
+      // flicker on near-ties). A handful of small paths per pin; at ≤ ~10 pins
+      // that's cheaper than the edge pass above.
+      for (let i = pins.length - 1; i >= 0; i--) {
+        const p = pins[i];
+        if (!p.retiring && !reduced && now - p.born > T_PIN_LIFE) p.retiring = now;
+        if (p.retiring && now - p.retiring > T_PIN_OUT) pins.splice(i, 1);
+      }
+      // Exactly one label on screen at a time: the newest live pin owns it,
+      // and the ambient query only gets it when no pin does.
+      let labelChunk = -1;
+      let labelAlpha = 0;
+      let owner = -1;
+      for (let i = pins.length - 1; i >= 0; i--) {
+        if (!pins[i].retiring) {
+          owner = i;
+          break;
+        }
+      }
+
+      if (pins.length > 0) {
+        for (let pi = 0; pi < pins.length; pi++) {
+          const p = pins[pi];
+          const pe = p.retiring
+            ? Math.max(0, 1 - (now - p.retiring) / T_PIN_OUT)
+            : Math.min(1, (now - p.born) / T_PIN_IN);
+          if (pe <= 0) continue;
+          if (pi === owner) {
+            labelChunk = p.k[0];
+            labelAlpha = pe;
+          }
+
+          // Spokes, and the retrieval radius they imply.
+          let rK = 0;
+          ctx.beginPath();
+          for (let k = 0; k < K; k++) {
+            const i = p.k[k];
+            if (i < 0) continue;
+            const dx = px[i] - p.x;
+            const dy = py[i] - p.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d > rK) rK = d;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(px[i], py[i]);
+          }
+          ctx.strokeStyle = rgba(cyan, alpha.litEdge * pe);
+          ctx.lineWidth = 1.25;
+          ctx.stroke();
+
+          ctx.beginPath();
+          for (let k = 0; k < K; k++) {
+            const i = p.k[k];
+            if (i < 0) continue;
+            ctx.moveTo(px[i] + rad[i] + 1.2, py[i]);
+            ctx.arc(px[i], py[i], rad[i] + 1.2, 0, TAU);
+          }
+          ctx.fillStyle = rgba(cyan, alpha.litDot * pe);
+          ctx.fill();
+
+          // Search radius: pulses out to the k-th neighbour on arrival, then
+          // settles into a faint dashed circle that breathes as chunks drift.
+          const age = now - p.born;
+          if (!p.retiring && age < T_PIN_RING) {
+            const pr = age / T_PIN_RING;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, easeOutCubic(pr) * rK, 0, TAU);
+            ctx.strokeStyle = rgba(cyan, 0.4 * (1 - pr));
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          } else if (rK > 0) {
+            ctx.setLineDash(RING_DASH);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, rK, 0, TAU);
+            ctx.strokeStyle = rgba(cyan, 0.16 * pe);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash(NO_DASH);
+          }
+
+          // Query marker.
+          ctx.beginPath();
+          ctx.moveTo(p.x + 3, p.y);
+          ctx.arc(p.x, p.y, 3, 0, TAU);
+          ctx.fillStyle = rgba(cyan, pe);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 7, 0, TAU);
+          ctx.strokeStyle = rgba(cyan, 0.5 * pe);
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
       // Retrieved top-k.
       if (env > 0 && topK[0] >= 0) {
+        if (owner < 0) {
+          labelChunk = topK[0];
+          labelAlpha = env;
+        }
         ctx.beginPath();
         for (let k = 0; k < K; k++) {
           const i = topK[k];
@@ -324,6 +501,26 @@ export function RetrievalField() {
           ctx.stroke();
         }
       }
+
+      // What the nearest chunk stands for — the one bit of text on the canvas,
+      // drawn last so nothing overlaps it, and gone when its query fades.
+      const pool = labelsRef.current;
+      if (labelChunk >= 0 && labelAlpha > 0 && pool && pool.length > 0) {
+        const li = label[labelChunk];
+        if (li >= 0 && li < pool.length) {
+          const lx = px[labelChunk];
+          const off = rad[labelChunk] + LABEL_GAP;
+          // Near the right edge, hang the word off the other side of the dot
+          // so it never runs off-canvas.
+          const flip = lx > W - LABEL_FLIP;
+          ctx.font = LABEL_FONT;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = flip ? 'right' : 'left';
+          ctx.fillStyle = rgba(cyan, 0.7 * labelAlpha);
+          ctx.fillText(pool[li], lx + (flip ? -off : off), py[labelChunk]);
+          ctx.textAlign = 'left';
+        }
+      }
     };
 
     // ── Loop ────────────────────────────────────────────────────────────────
@@ -355,6 +552,66 @@ export function RetrievalField() {
       draw(performance.now());
     };
 
+    // ── Interaction ─────────────────────────────────────────────────────────
+    const addPin = (x: number, y: number, now: number) => {
+      let live = 0;
+      for (let i = 0; i < pins.length; i++) if (!pins[i].retiring) live++;
+      if (live >= MAX_PINS) {
+        const oldest = pins.findIndex((p) => !p.retiring);
+        // Under reduced motion nothing repaints on a timer, so a fading pin
+        // would hang around at full strength — drop it outright instead.
+        if (reduced) pins.splice(oldest, 1);
+        else pins[oldest].retiring = now;
+      }
+      const k = new Int32Array(K);
+      computeTopK(x, y, k, pinD2);
+      pins.push({ x, y, born: reduced ? 0 : now, retiring: 0, k });
+      // Don't let the ambient query sweep in on top of the click.
+      if (q.phase === 'idle') q.start = now;
+      if (reduced) draw(performance.now()); // not drawStatic: keep q's phase
+    };
+
+    const target: HTMLElement = interactionRef?.current ?? canvas;
+    let downX = 0;
+    let downY = 0;
+    let downT = 0;
+    let downId = -1; // pointer whose press started inside the hero
+
+    const onPointerDown = (e: PointerEvent) => {
+      downId = e.button === 0 && e.isPrimary ? e.pointerId : -1;
+      downX = e.clientX;
+      downY = e.clientY;
+      downT = e.timeStamp;
+    };
+
+    const onPointerCancel = () => {
+      downId = -1;
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      // Must pair with a press that started here — a release that drifted in
+      // from the fixed navbar above isn't a click on the field.
+      if (e.pointerId !== downId || e.button !== 0) return;
+      downId = -1;
+      // A drag is a scroll or a text selection, not a click.
+      if (Math.hypot(e.clientX - downX, e.clientY - downY) > CLICK_SLOP) return;
+      if (e.timeStamp - downT > CLICK_MS) return;
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed) return;
+      // Leave the CTAs and social links alone.
+      const el = e.target as Element | null;
+      if (el?.closest?.('a,button,input,textarea,select,[role="button"]')) return;
+      // The wrapper fades out over the first stretch of scroll but still
+      // hit-tests — don't pin queries onto an invisible field.
+      const host = canvas.parentElement;
+      if (host && Number(getComputedStyle(host).opacity) < HIDDEN_OPACITY) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+      addPin(x, y, performance.now());
+    };
+
     // ── Sizing ──────────────────────────────────────────────────────────────
     const resize = () => {
       const w = canvas.clientWidth;
@@ -374,8 +631,10 @@ export function RetrievalField() {
       wide = W >= MD;
 
       if (prevW === 0 || wide !== wasWide) {
-        // First run, or the copy column changed shape — reseed.
+        // First run, or the copy column changed shape — reseed. Pinned queries
+        // reference chunk indices that are about to mean something else.
         seed();
+        pins.length = 0;
       } else {
         // Scale homes in place: no pop, and it absorbs mobile URL-bar resizes.
         const sx = W / prevW;
@@ -383,6 +642,10 @@ export function RetrievalField() {
         for (let i = 0; i < N; i++) {
           homeX[i] *= sx;
           homeY[i] *= sy;
+        }
+        for (let i = 0; i < pins.length; i++) {
+          pins[i].x *= sx;
+          pins[i].y *= sy;
         }
       }
       if (reduced) drawStatic();
@@ -399,6 +662,8 @@ export function RetrievalField() {
       reduced = motionQuery.matches;
       if (reduced) {
         stop();
+        // No timer left to finish their fades — drop them now.
+        for (let i = pins.length - 1; i >= 0; i--) if (pins[i].retiring) pins.splice(i, 1);
         drawStatic();
       } else {
         start();
@@ -436,6 +701,10 @@ export function RetrievalField() {
     };
     document.addEventListener('visibilitychange', onVisibility);
 
+    target.addEventListener('pointerdown', onPointerDown);
+    target.addEventListener('pointerup', onPointerUp);
+    target.addEventListener('pointercancel', onPointerCancel);
+
     if (reduced) drawStatic();
     else start();
 
@@ -443,11 +712,14 @@ export function RetrievalField() {
       stop();
       motionQuery.removeEventListener('change', onMotionChange);
       document.removeEventListener('visibilitychange', onVisibility);
+      target.removeEventListener('pointerdown', onPointerDown);
+      target.removeEventListener('pointerup', onPointerUp);
+      target.removeEventListener('pointercancel', onPointerCancel);
       themeObserver.disconnect();
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
     };
-  }, []);
+  }, [interactionRef]);
 
   return (
     <canvas ref={canvasRef} aria-hidden className="absolute inset-0 h-full w-full" />

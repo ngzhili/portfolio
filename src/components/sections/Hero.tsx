@@ -4,11 +4,12 @@
  * Hero — the intro: name, role, tagline, CTAs, and social links.
  * Content from content/site.ts. The only <h1> on the page lives here.
  */
+import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
 import { RetrievalField } from '@/components/ui/RetrievalField';
-import { site, socials } from '@content/site';
+import { site, socials, skills } from '@content/site';
 import {
   GitHubIcon,
   LinkedInIcon,
@@ -24,6 +25,17 @@ const socialLinks = [
   { href: `mailto:${socials.email}`, label: 'Email', Icon: MailIcon },
 ];
 
+// What the chunks in the retrieval field stand for. Derived from the skills
+// list rather than hardcoded, so it follows content/site.ts; filtered to
+// short, parenthesis-free tokens that fit beside a 2px dot.
+const chunkLabels = [
+  ...new Set(
+    skills
+      .flatMap((group) => group.items)
+      .filter((s) => s.length <= 18 && !s.includes('('))
+  ),
+];
+
 // Stagger children in on load.
 const container = {
   hidden: {},
@@ -35,6 +47,10 @@ const item = {
 };
 
 export function Hero() {
+  // The retrieval field listens on this section, so clicks anywhere in the
+  // hero (except on the links) pin a query — see RetrievalField.
+  const heroRef = useRef<HTMLElement>(null);
+
   // Fade the scroll cue out as the user leaves the hero.
   const { scrollY } = useScroll();
   const cueOpacity = useTransform(scrollY, [0, 200], [1, 0]);
@@ -43,6 +59,7 @@ export function Hero() {
 
   return (
     <section
+      ref={heroRef}
       id="home"
       className="relative flex min-h-[100svh] items-center overflow-hidden pt-16"
     >
@@ -51,7 +68,7 @@ export function Hero() {
         style={{ opacity: shaderOpacity }}
         className="pointer-events-none absolute inset-0 z-0"
       >
-        <RetrievalField />
+        <RetrievalField interactionRef={heroRef} labels={chunkLabels} />
       </motion.div>
 
       <Container className="relative z-10 py-20">
@@ -115,6 +132,15 @@ export function Hero() {
                 <Icon />
               </a>
             ))}
+          </motion.div>
+
+          {/* Legend for the field behind the copy. Permanent: the invitation is
+              worth keeping for anyone who arrives after the first click. */}
+          <motion.div variants={item} className="mt-8 hidden md:block">
+            <p className="font-mono text-xs text-muted/60">
+              vector store &middot; top-5 nearest neighbours &middot; click anywhere to
+              retrieve
+            </p>
           </motion.div>
         </motion.div>
       </Container>
