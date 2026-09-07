@@ -24,12 +24,29 @@ export function Navbar() {
   const [active, setActive] = useState<string>(sections[0]?.id ?? '');
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Add a subtle background once the user scrolls past the top.
+  // Add a subtle background once the user scrolls past the top. rAF-throttled
+  // and change-only, so a scroll costs one boolean compare per frame rather
+  // than a React state write per scroll event.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
+    let raf = 0;
+    let last = window.scrollY > 8;
+    setScrolled(last);
+    const onScroll = () => {
+      if (raf !== 0) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const next = window.scrollY > 8;
+        if (next !== last) {
+          last = next;
+          setScrolled(next);
+        }
+      });
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf !== 0) cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Scrollspy: highlight the nav link for the section currently in view.
@@ -41,38 +58,64 @@ export function Navbar() {
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0) return;
 
-    // Active = the last section whose top has scrolled past the navbar line.
-    // Ratio-based scoring fails for tall sections (Experience, Projects),
-    // whose visible-fraction stays low even when they fill the viewport.
-    // Sections land at scroll-padding-top (5rem = 80px) after a click; add
-    // slack so the target counts as crossed despite subpixel rounding.
+    // Active = the section straddling the navbar line (top above it, bottom
+    // below). Ratio-based scoring fails for tall sections (Experience,
+    // Projects), whose visible-fraction stays low even when they fill the
+    // viewport. Sections land at scroll-padding-top (5rem = 80px) after a
+    // click; the extra slack makes the target count as crossed despite
+    // subpixel rounding.
+    //
+    // Collapsing the root to a 1px band at that line expresses exactly this
+    // test, so the browser does the work off the main thread — no scroll
+    // listener and no getBoundingClientRect() sweep per frame.
     const navOffset = 96;
-    const pickActive = () => {
-      // Active = the section straddling the navOffset line (top above it,
-      // bottom below). Fall back to the last section whose top has crossed,
-      // so the final section still highlights at the very bottom of the page.
-      let current = sections[0]?.id ?? '';
-      for (const s of sections) {
-        const el = document.getElementById(s.id);
-        if (!el) continue;
-        const { top, bottom } = el.getBoundingClientRect();
-        if (top <= navOffset && bottom > navOffset) {
-          current = s.id;
-          break;
+    const visible = new Set<string>();
+    let current = '';
+
+    let observer: IntersectionObserver | null = null;
+    const connect = () => {
+      observer?.disconnect();
+      visible.clear();
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) visible.add(entry.target.id);
+            else visible.delete(entry.target.id);
+          }
+          // Last section (in page order) touching the band. When nothing does —
+          // a gap, or the footer filling the band at the very bottom — keep the
+          // previous one, so the final section stays highlighted.
+          let next = current;
+          for (const s of sections) if (visible.has(s.id)) next = s.id;
+          if (next && next !== current) {
+            current = next;
+            setActive(next);
+          }
+        },
+        {
+          rootMargin: `-${navOffset}px 0px -${Math.max(
+            0,
+            window.innerHeight - navOffset - 1
+          )}px 0px`,
+          threshold: 0,
         }
-        if (top <= navOffset) current = s.id;
-      }
-      setActive(current);
+      );
+      els.forEach((el) => observer!.observe(el));
     };
-    const observer = new IntersectionObserver(pickActive, {
-      threshold: [0, 0.25, 0.5, 0.75, 1],
-    });
-    els.forEach((el) => observer.observe(el));
-    window.addEventListener('scroll', pickActive, { passive: true });
-    pickActive();
+    connect();
+
+    // The bottom margin is derived from the viewport height, so rebuild on resize.
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(connect, 150);
+    };
+    window.addEventListener('resize', onResize);
+
     return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', pickActive);
+      observer?.disconnect();
+      window.removeEventListener('resize', onResize);
+      clearTimeout(resizeTimer);
     };
   }, [onHome]);
 

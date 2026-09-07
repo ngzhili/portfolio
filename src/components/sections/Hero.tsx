@@ -7,7 +7,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
-import { ShaderBackground } from '@/components/ui/ShaderBackground';
+import { RetrievalField } from '@/components/ui/RetrievalField';
 import { site, socials } from '@content/site';
 import {
   GitHubIcon,
@@ -46,12 +46,12 @@ export function Hero() {
       id="home"
       className="relative flex min-h-[100svh] items-center overflow-hidden pt-16"
     >
-      {/* Animated aurora-streak background — fades as you scroll past. */}
+      {/* Vector-store retrieval field — fades as you scroll past. */}
       <motion.div
         style={{ opacity: shaderOpacity }}
         className="pointer-events-none absolute inset-0 z-0"
       >
-        <ShaderBackground />
+        <RetrievalField />
       </motion.div>
 
       <Container className="relative z-10 py-20">

@@ -119,6 +119,7 @@ export function Certifications() {
   const movedRef = useRef(false); // pointer moved far enough to count as a drag
   const dragStartXRef = useRef(0); // xRef when the press began
   const dragStartPointerRef = useRef(0); // pointer clientX when the press began
+  const halfRef = useRef(0); // width of one copy of the cards, measured on resize
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
 
@@ -130,18 +131,49 @@ export function Certifications() {
     const speed = 40; // px per second
     const step = (now: number) => {
       if (last === 0) last = now;
-      const dt = (now - last) / 1000;
+      const dt = Math.min((now - last) / 1000, 0.1); // clamp across hidden-tab gaps
       last = now;
-      const half = track.scrollWidth / 2; // width of one copy of the cards
       // Auto-advance only when not paused (hover/detail) and not being dragged.
       if (!pausedRef.current && !draggingRef.current) {
-        xRef.current = wrapTranslate(xRef.current - speed * dt, half);
+        xRef.current = wrapTranslate(xRef.current - speed * dt, halfRef.current);
       }
       track.style.transform = `translateX(${xRef.current}px)`;
       raf = requestAnimationFrame(step);
     };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+    const start = () => {
+      if (raf !== 0) return;
+      last = 0; // don't count the time spent offscreen as elapsed
+      raf = requestAnimationFrame(step);
+    };
+    const stop = () => {
+      if (raf === 0) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    // Measure one copy of the cards on resize rather than every frame — reading
+    // scrollWidth in the loop forces a synchronous layout on each tick.
+    const resizeObserver = new ResizeObserver(() => {
+      halfRef.current = track.scrollWidth / 2;
+    });
+    resizeObserver.observe(track);
+    halfRef.current = track.scrollWidth / 2;
+
+    // Only animate while the strip is actually on screen.
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) start();
+        else stop();
+      },
+      { rootMargin: '50px' }
+    );
+    intersectionObserver.observe(track);
+
+    return () => {
+      stop();
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+    };
   }, []);
 
   // ── Drag-to-scroll (mouse / touch / pen via Pointer Events) ────────────────
@@ -162,8 +194,7 @@ export function Certifications() {
       movedRef.current = true;
       e.currentTarget.setPointerCapture(e.pointerId);
     }
-    const half = (trackRef.current?.scrollWidth ?? 0) / 2;
-    xRef.current = wrapTranslate(dragStartXRef.current + dx, half);
+    xRef.current = wrapTranslate(dragStartXRef.current + dx, halfRef.current);
   };
   const endDrag = (e: React.PointerEvent) => {
     pointerActiveRef.current = false;
