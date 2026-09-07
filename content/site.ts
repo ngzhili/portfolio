@@ -324,6 +324,15 @@ export type Certification = {
 
 export const certifications: Certification[] = [
   {
+    title: 'Certified Scrum Product Owner® (CSPO)',
+    issuer: 'Scrum Alliance',
+    date: 'Sep 2026',
+    credentialUrl: '',
+    logo: '/logos/scrum_alliance_logo.jpg',
+    description:
+      'Certified in the Product Owner role — owning the product vision, building and ordering the product backlog, and maximising value delivered by the Scrum Team each sprint.',
+  },
+  {
     title: 'Software Design Patterns',
     issuer: 'NUS-ISS',
     date: 'Dec 2025',
