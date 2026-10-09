@@ -5,11 +5,13 @@
  * social links over an animated background. Content from content/site.ts.
  * The only <h1> on the page lives here.
  *
- * The background is chosen by `heroVariant` in content/site.ts:
- *   'agent'     → AgentTraceField (an agent run: plan → tools → reflect → answer)
- *   'retrieval' → RetrievalField  (the original vector-store top-k field)
+ * The background is chosen by `heroVariant` in content/site.ts, or per visit
+ * with ?hero=<variant>:
+ *   'agent'     → AgentTraceField   (an agent run: plan → tools → reflect → answer)
+ *   'harness'   → AgentHarnessField (that run inside memory, sandbox, sub-agent, eval)
+ *   'retrieval' → RetrievalField    (the original vector-store top-k field)
  */
-import { useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useStableReducedMotion } from '@/components/motion/useStableReducedMotion';
 import { useMotion } from '@/components/motion/MotionProvider';
@@ -18,7 +20,16 @@ import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
 import { RetrievalField } from '@/components/ui/RetrievalField';
 import { AgentTraceField } from '@/components/ui/AgentTraceField';
-import { site, socials, skills, heroVariant, heroAgent } from '@content/site';
+import { AgentHarnessField } from '@/components/ui/AgentHarnessField';
+import {
+  site,
+  socials,
+  skills,
+  heroVariant,
+  heroAgent,
+  heroHarness,
+  type HeroVariant,
+} from '@content/site';
 import {
   GitHubIcon,
   LinkedInIcon,
@@ -26,6 +37,14 @@ import {
   MailIcon,
   ArrowRightIcon,
 } from '@/components/ui/icons';
+
+const HERO_VARIANTS: HeroVariant[] = ['agent', 'harness', 'retrieval'];
+
+const LEGENDS: Record<HeroVariant, string> = {
+  agent: 'agent loop · plan → tools → reflect → answer · click anywhere to run',
+  harness: 'agent loop + harness · tools load on demand · click anywhere to run',
+  retrieval: 'vector store · top-5 nearest neighbours · click anywhere to retrieve',
+};
 
 const socialLinks = [
   { href: socials.github, label: 'GitHub', Icon: GitHubIcon },
@@ -175,7 +194,13 @@ export function Hero() {
   const copyOpacity = useTransform(scrollY, [0, 500], [1, 0.5]);
   const parallax = tokens.scrollLinked && !reduce;
 
-  const isAgent = heroVariant !== 'retrieval';
+  // The default renders first (it matches the static HTML); a ?hero= override
+  // swaps the canvas before paint. Only the canvas and legend differ.
+  const [variant, setVariant] = useState<HeroVariant>(heroVariant);
+  useLayoutEffect(() => {
+    const v = new URLSearchParams(window.location.search).get('hero');
+    if (v && (HERO_VARIANTS as string[]).includes(v)) setVariant(v as HeroVariant);
+  }, []);
 
   return (
     <section
@@ -188,14 +213,21 @@ export function Hero() {
         style={{ opacity: shaderOpacity }}
         className="pointer-events-none absolute inset-0 z-0"
       >
-        {isAgent ? (
+        {variant === 'retrieval' ? (
+          <RetrievalField interactionRef={heroRef} labels={chunkLabels} />
+        ) : variant === 'harness' ? (
+          <AgentHarnessField
+            interactionRef={heroRef}
+            tools={heroHarness.tools}
+            subagent={heroHarness.subagent}
+            queries={heroAgent.queries}
+          />
+        ) : (
           <AgentTraceField
             interactionRef={heroRef}
             tools={heroAgent.tools}
             queries={heroAgent.queries}
           />
-        ) : (
-          <RetrievalField interactionRef={heroRef} labels={chunkLabels} />
         )}
       </motion.div>
 
@@ -262,19 +294,7 @@ export function Hero() {
           {/* Legend for the field behind the copy. Permanent: the invitation is
               worth keeping for anyone who arrives after the first click. */}
           <motion.div variants={it} className="mt-8 hidden md:block">
-            <p className="font-mono text-xs text-muted/60">
-              {isAgent ? (
-                <>
-                  agent loop &middot; plan &rarr; tools &rarr; reflect &rarr; answer &middot;
-                  click anywhere to run
-                </>
-              ) : (
-                <>
-                  vector store &middot; top-5 nearest neighbours &middot; click anywhere to
-                  retrieve
-                </>
-              )}
-            </p>
+            <p className="font-mono text-xs text-muted/60">{LEGENDS[variant]}</p>
           </motion.div>
         </motion.div>
       </Container>

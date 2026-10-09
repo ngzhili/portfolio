@@ -138,7 +138,8 @@ src/
     layout/          # Navbar, Footer, Section, Container
     sections/        # Hero, AgentSystems, Experience, Skills, Projects,
                      # Publications, Certifications, Awards, About, Contact
-    ui/              # AgentTraceField + RetrievalField (hero backgrounds),
+    ui/              # AgentTraceField, AgentHarnessField, RetrievalField
+                     # (hero backgrounds),
                      # Button, Tag, Reveal, CountUp, icons
   lib/               # blog (MDX), nav, asset-path helpers
 next.config.mjs      # static export + basePath (edit repoName here)
@@ -153,8 +154,15 @@ The hero draws one of two canvas backgrounds, picked by `heroVariant` in
 - `'agent'` (default) — **AgentTraceField**: an agent run (query → plan →
   parallel tool calls → reflect → answer, with an occasional re-plan loop) and
   a streaming trace log. Tool names and sample queries come from `heroAgent`.
+- `'harness'` — **AgentHarnessField**: the same run inside its harness. Memory
+  is read before planning and written back after the answer; two tool slots sit
+  in a sandbox and load new tools from a pool on demand (`heroHarness`); one
+  call can go to a sub-agent that runs its own small loop; reflect runs an eval.
 - `'retrieval'` — **RetrievalField**: the original vector-store field, where a
   query lights up its top-5 nearest chunks.
+
+Add `?hero=harness` (or `agent`, `retrieval`) to the URL to preview a variant
+without changing the default.
 
 Both are interactive (click the hero), pause offscreen, and render one static
 frame under `prefers-reduced-motion`.

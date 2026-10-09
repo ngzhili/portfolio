@@ -44,10 +44,22 @@ export const site = {
 // Which animated background the hero draws.
 //   • 'agent'     — an agent run trace: query → plan → tool calls → reflect →
 //                   answer, with a live trace log. Click the hero to start a run.
+//   • 'harness'   — the same run inside its harness: memory read/write, tools
+//                   in a sandbox that load on demand, a sub-agent, an eval step.
 //   • 'retrieval' — the original vector-store field: a query lights its top-5
 //                   nearest chunks. Click the hero to drop your own query.
-export type HeroVariant = 'agent' | 'retrieval';
-export const heroVariant: HeroVariant = 'agent';
+// Add ?hero=harness (etc.) to the URL to preview another one without editing.
+export type HeroVariant = 'agent' | 'harness' | 'retrieval';
+export const heroVariant: HeroVariant = 'harness';
+
+// What the harness hero shows (only used when heroVariant is 'harness').
+// `tools` is the pool: two are loaded at a time and the rest load on demand,
+// so keep names ≤ 8 characters. `subagent` is the name the trace log gives
+// the sub-agent node. Queries are shared with heroAgent.
+export const heroHarness = {
+  tools: ['retrieve', 'search', 'run_code', 'sql', 'browser', 'github', 'ocr', 'fetch'],
+  subagent: 'researcher',
+};
 
 // ── Motion ───────────────────────────────────────────────────────────────────
 // How the whole site moves (reveals, hero headline, nav, hovers, buttons).
