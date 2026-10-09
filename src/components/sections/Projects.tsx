@@ -18,9 +18,9 @@ export async function Projects() {
   return (
     <Section
       id="projects"
-      eyebrow="Work"
-      title="Featured Projects"
-      intro="A selection of things I've designed and built."
+      eyebrow="Earlier work"
+      title="Projects"
+      intro="Computer vision, reinforcement learning and robotics work from NUS, hackathons and internships."
     >
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((project, i) => (

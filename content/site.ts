@@ -21,9 +21,12 @@ export const site = {
   name: 'Ng Zhili',
   // Short role shown under your name in the hero.
   role: 'Lead Solutions Architect & Full-Stack Software Engineer (GenAI)',
-  // A punchy one-liner tagline for the hero.
-  tagline: 'I design and scale production GenAI systems — agents, RAG, and the platforms behind them.',
-  // The longer intro paragraph in the hero.
+  // Hero headline. `accent` gets the violet→cyan gradient.
+  headline: { lead: 'I build production ', accent: 'GenAI agent systems.' },
+  // A punchy one-liner shown under the headline (also the meta description).
+  tagline: 'I design and scale GenAI agents, RAG pipelines, and the platforms they run on, from business requirements to production.',
+  // Longer intro paragraph. No longer rendered in the hero (the tagline is);
+  // kept for reuse and as the long-form summary.
   intro:
     'Lead Solutions Architect and Full-Stack Software Engineer with 3+ years in Generative AI, full-stack web, and backend development. I build production GenAIOps pipelines, multilingual multimodal RAG with citations, and agentic applications — from business requirements to deployment at scale.',
   // Default Open Graph / social share image (lives in /public).
@@ -34,6 +37,31 @@ export const site = {
   // Your location (optional — shown in About).
   location: 'Singapore',
 } as const;
+
+// ── Hero background ──────────────────────────────────────────────────────────
+// Which animated background the hero draws.
+//   • 'agent'     — an agent run trace: query → plan → tool calls → reflect →
+//                   answer, with a live trace log. Click the hero to start a run.
+//   • 'retrieval' — the original vector-store field: a query lights its top-5
+//                   nearest chunks. Click the hero to drop your own query.
+export type HeroVariant = 'agent' | 'retrieval';
+export const heroVariant: HeroVariant = 'agent';
+
+// What the agent trace hero shows (only used when heroVariant is 'agent').
+// `tools` become the tool nodes. 3–5 names of ≤ 8 characters lay out best;
+// longer names start to collide with the neighbouring tool's edges.
+// `queries` are sample user requests the trace log quotes.
+export const heroAgent = {
+  tools: ['retrieve', 'search', 'run_code', 'memory'],
+  queries: [
+    'summarise Q3 incident reports',
+    'compare vendor contracts',
+    'draft a test plan from the spec',
+    'find citations for this claim',
+    'translate and summarise this memo',
+    'which services breached SLA?',
+  ],
+};
 
 // ── Social / contact links ───────────────────────────────────────────────────
 // Set `href` to your real URLs. Leave the email as a bare address (no mailto:);
@@ -139,6 +167,73 @@ export const experience: Experience[] = [
       'Built a Keras-based ETL pipeline (AWS Lambda + SageMaker) filtering 100K+ images, cutting prep time by 70%.',
       'Trained TensorFlow YOLO detectors (70% AP) and OpenCV/OCR license-plate recognition (CER 10%).',
     ],
+  },
+];
+
+// ── Agent systems (featured GenAI work) ──────────────────────────────────────
+// Shown in the "Agent systems" section right after the hero. Mark one entry
+// `featured` to give it the full-width card with the stack-layer chips.
+export type AgentSystem = {
+  title: string;
+  summary: string;
+  bullets: string[];
+  tags: string[];
+  // Optional headline number shown in the card corner.
+  metric?: { value: string; label: string };
+  // Optional row of small chips (used on the featured card for stack layers).
+  layers?: string[];
+  featured?: boolean;
+};
+
+export const agentSystems: AgentSystem[] = [
+  {
+    title: 'GenAIOps framework & agent runtime',
+    summary:
+      'Chief architect of an organization-wide, end-to-end GenAIOps framework that takes GenAI models and multi-agent systems from prototype into production products.',
+    bullets: [
+      'Architected the full agentic stack: frameworks, runtime, harness and UI-Agent-Tool communication.',
+      'Built in observability, evaluation and sandboxing so agent behaviour is measurable and safe to ship.',
+      'Designed memory, skills and knowledge-retrieval layers shared across agent products.',
+      'Accelerated development and deployment for teams building on the platform.',
+    ],
+    layers: ['runtime', 'harness', 'tools', 'memory', 'skills', 'retrieval', 'eval', 'observability', 'sandbox'],
+    tags: ['Multi-Agent Systems', 'LangGraph', 'Python', 'FastAPI', 'Observability', 'Evaluation'],
+    metric: { value: '2000+', label: 'production users' },
+    featured: true,
+  },
+  {
+    title: 'Streaming agent chat platform with Human-in-the-Loop',
+    summary:
+      'Full-stack AI chatbot platforms that stream every agent step to the user as it happens.',
+    bullets: [
+      'Real-time streaming of agent steps and tool execution.',
+      'State sync between UI, agent and tools.',
+      'Human-in-the-Loop approval workflows for sensitive actions.',
+    ],
+    tags: ['React', 'Real-time Streaming UI', 'Tool Use', 'Human-in-the-Loop'],
+  },
+  {
+    title: 'Adaptive RAG & self-reflection at scale',
+    summary:
+      'Retrieval pipelines that decide how to search, check their own answers and cite their sources.',
+    bullets: [
+      'Adaptive RAG and self-reflection pipelines with multi-turn reasoning and memory.',
+      'Multilingual, multimodal retrieval scaled over millions of files.',
+      'Citation-backed responses for traceable answers.',
+    ],
+    tags: ['RAG', 'Multimodal', 'Multilingual', 'Vector DBs', 'Citations'],
+    metric: { value: 'Millions', label: 'of files indexed' },
+  },
+  {
+    title: 'On-prem GPU inference & CI/CD for AI apps',
+    summary:
+      'The serving and delivery layer underneath the agents: self-hosted models and repeatable releases.',
+    bullets: [
+      'On-prem GPU/HPC inference microservices with autoscaling and monitoring.',
+      'CI/CD pipelines purpose-built for AI applications.',
+      'Awarded 3× Group Performance Award.',
+    ],
+    tags: ['vLLM', 'Kubernetes', 'Docker', 'GPU / HPC', 'Autoscaling'],
   },
 ];
 
@@ -284,8 +379,8 @@ export type SkillGroup = {
 
 export const skills: SkillGroup[] = [
   {
-    category: 'AI / ML Systems',
-    items: ['LLMs', 'RAG', 'Agentic Workflows', 'Multimodal AI', 'Evaluation', 'Fine-tuning', 'Synthetic Data', 'Model Inference & Optimization', 'Observability'],
+    category: 'Agents & GenAI Systems',
+    items: ['Agentic Workflows', 'Multi-Agent Systems', 'LLMs', 'RAG', 'Tool Use', 'Human-in-the-Loop', 'Evaluation', 'Observability', 'Multimodal AI', 'Fine-tuning', 'Synthetic Data', 'Model Inference & Optimization'],
   },
   {
     category: 'GenAI Frameworks & Tools',

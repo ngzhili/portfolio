@@ -42,7 +42,17 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
-  keywords: ['portfolio', 'software developer', 'web developer', site.name],
+  keywords: [
+    'portfolio',
+    'GenAI',
+    'AI agents',
+    'multi-agent systems',
+    'LLM',
+    'RAG',
+    'solutions architect',
+    'software engineer',
+    site.name,
+  ],
   authors: [{ name: site.name }],
   creator: site.name,
   openGraph: {

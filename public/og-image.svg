@@ -6,9 +6,44 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="#08080c"/>
-  <circle cx="980" cy="120" r="280" fill="url(#og)" opacity="0.25"/>
   <circle cx="180" cy="560" r="220" fill="url(#og)" opacity="0.18"/>
+  <!-- Agent graph motif: query → plan → tools → reflect → answer -->
+  <g fill="none" stroke="#8b5cf6" stroke-opacity="0.45" stroke-width="2">
+    <path d="M960 200 Q850 242 850 320"/>
+    <path d="M960 200 Q1070 242 1070 320"/>
+    <path d="M850 320 Q850 398 960 440"/>
+    <path d="M1070 320 Q1070 398 960 440"/>
+  </g>
+  <path d="M960 440 Q620 320 960 200" fill="none" stroke="#8b5cf6" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="5 6"/>
+  <g stroke="#22d3ee" stroke-width="2.5" fill="none" stroke-opacity="0.9">
+    <path d="M960 110 L960 520"/>
+  </g>
+  <g fill="#8b5cf6">
+    <circle cx="850" cy="320" r="8"/>
+    <circle cx="1070" cy="320" r="8"/>
+  </g>
+  <g fill="#22d3ee">
+    <circle cx="960" cy="110" r="7"/>
+    <circle cx="960" cy="200" r="10"/>
+    <circle cx="960" cy="320" r="8"/>
+    <circle cx="960" cy="440" r="10"/>
+    <circle cx="960" cy="520" r="9"/>
+  </g>
+  <g fill="none" stroke="#22d3ee" stroke-opacity="0.7" stroke-width="2">
+    <circle cx="960" cy="200" r="17"/>
+    <circle cx="960" cy="440" r="17"/>
+    <circle cx="960" cy="520" r="16"/>
+    <circle cx="960" cy="320" r="22" stroke-opacity="0.35"/>
+  </g>
+  <g font-family="ui-monospace, Menlo, monospace" font-size="20" fill="#a1a1b5">
+    <text x="982" y="117">query</text>
+    <text x="986" y="186">plan</text>
+    <text x="992" y="327">tool</text>
+    <text x="986" y="470">reflect</text>
+    <text x="990" y="527">answer</text>
+  </g>
   <text x="90" y="300" font-family="Space Grotesk, Arial, sans-serif" font-size="84" font-weight="700" fill="#f4f4f6">Ng Zhili</text>
-  <text x="92" y="372" font-family="Inter, Arial, sans-serif" font-size="36" fill="#a1a1b5">Lead Solutions Architect &amp; Full-Stack Engineer (GenAI)</text>
-  <rect x="92" y="420" width="180" height="8" rx="4" fill="url(#og)"/>
+  <text x="92" y="372" font-family="Inter, Arial, sans-serif" font-size="36" fill="#a1a1b5">Production GenAI agent systems</text>
+  <text x="92" y="420" font-family="Inter, Arial, sans-serif" font-size="26" fill="#6c6c82">Lead Solutions Architect &amp; Full-Stack Engineer (GenAI)</text>
+  <rect x="92" y="456" width="180" height="8" rx="4" fill="url(#og)"/>
 </svg>

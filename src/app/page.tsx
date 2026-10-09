@@ -3,6 +3,7 @@
  * Each section is its own component under src/components/sections/.
  */
 import { Hero } from '@/components/sections/Hero';
+import { AgentSystems } from '@/components/sections/AgentSystems';
 import { Experience } from '@/components/sections/Experience';
 import { Projects } from '@/components/sections/Projects';
 import { Publications } from '@/components/sections/Publications';
@@ -16,10 +17,11 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <AgentSystems />
       <Experience />
+      <Skills />
       <Projects />
       <Publications />
-      <Skills />
       <Certifications />
       <Awards />
       <About />

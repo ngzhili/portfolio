@@ -136,12 +136,28 @@ src/
   app/               # routes: layout, home, blog, sitemap, robots
   components/
     layout/          # Navbar, Footer, Section, Container
-    sections/        # Hero, Experience, Projects, Skills, About, Contact
-    ui/              # Button, Tag, Reveal, icons
+    sections/        # Hero, AgentSystems, Experience, Skills, Projects,
+                     # Publications, Certifications, Awards, About, Contact
+    ui/              # AgentTraceField + RetrievalField (hero backgrounds),
+                     # Button, Tag, Reveal, CountUp, icons
   lib/               # blog (MDX), nav, asset-path helpers
 next.config.mjs      # static export + basePath (edit repoName here)
 .github/workflows/deploy.yml  # GitHub Pages CI
 ```
+
+## Hero background
+
+The hero draws one of two canvas backgrounds, picked by `heroVariant` in
+`content/site.ts`:
+
+- `'agent'` (default) — **AgentTraceField**: an agent run (query → plan →
+  parallel tool calls → reflect → answer, with an occasional re-plan loop) and
+  a streaming trace log. Tool names and sample queries come from `heroAgent`.
+- `'retrieval'` — **RetrievalField**: the original vector-store field, where a
+  query lights up its top-5 nearest chunks.
+
+Both are interactive (click the hero), pause offscreen, and render one static
+frame under `prefers-reduced-motion`.
 
 ## Tech notes
 

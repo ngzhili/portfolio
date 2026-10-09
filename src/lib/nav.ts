@@ -13,14 +13,14 @@ export type NavSection = {
 
 export const sections: NavSection[] = [
   { id: 'home', label: 'Home' },
+  { id: 'agent-systems', label: 'Agents' },
   { id: 'experience', label: 'Experience' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'publications', label: 'Publications' },
   { id: 'skills', label: 'Skills' },
-  { id: 'certifications', label: 'Certifications' },
-  { id: 'awards', label: 'Awards' },
+  { id: 'projects', label: 'Projects' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
+  // Publications, Certifications and Awards are still on the page (reached by
+  // scrolling); they're left out here to keep the bar short.
 ];
 
 /**
