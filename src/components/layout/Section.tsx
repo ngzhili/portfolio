@@ -6,6 +6,7 @@
 import type { ReactNode } from 'react';
 import { Container } from './Container';
 import { Reveal } from '@/components/ui/Reveal';
+import { Drift } from '@/components/motion/Drift';
 
 export function Section({
   id,
@@ -30,6 +31,8 @@ export function Section({
     >
       <Container>
         {(eyebrow || title) && (
+          // Drift is a plain div unless the motion preset is scroll-linked.
+          <Drift>
           <Reveal>
             <div className="mb-12 max-w-2xl sm:mb-14">
               {eyebrow && (
@@ -48,6 +51,7 @@ export function Section({
               {intro && <p className="mt-4 text-base text-muted sm:text-lg">{intro}</p>}
             </div>
           </Reveal>
+          </Drift>
         )}
         {children}
       </Container>

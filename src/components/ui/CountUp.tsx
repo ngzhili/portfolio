@@ -10,19 +10,22 @@
  */
 import { animate, useInView, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { useMotion } from '@/components/motion/MotionProvider';
 
 export function CountUp({
   value,
-  duration = 1.6,
+  duration,
   className = '',
 }: {
   value: string;
+  /** Seconds; defaults to the motion preset's `dur.slow` × 2.5. */
   duration?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.5 });
   const reduceMotion = useReducedMotion();
+  const { tokens } = useMotion();
 
   // Split "2000+" -> { prefix: "", target: 2000, suffix: "+" }
   const match = value.match(/^(\D*)([\d,]+)(.*)$/);
@@ -45,8 +48,10 @@ export function CountUp({
       return;
     }
     const controls = animate(0, target, {
-      duration,
-      ease: [0.21, 0.47, 0.32, 0.98],
+      duration: duration ?? tokens.dur.slow * 2.5,
+      // An overshooting ease would count past the target and back; clamp to
+      // expo-out for springy presets.
+      ease: tokens.spring ? [0.16, 1, 0.3, 1] : tokens.ease,
       onUpdate: (n) => setDisplay(`${prefix}${format(n)}${suffix}`),
     });
     return () => controls.stop();

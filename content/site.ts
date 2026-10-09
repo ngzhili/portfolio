@@ -9,6 +9,8 @@
  * ╚══════════════════════════════════════════════════════════════════════╝
  */
 
+import type { MotionPreset } from '@/lib/motion';
+
 // ── Site-wide / SEO ────────────────────────────────────────────────────────
 // IMPORTANT: set SITE_URL to your final public URL so Open Graph tags, the
 // sitemap, and canonical links resolve correctly.
@@ -46,6 +48,15 @@ export const site = {
 //                   nearest chunks. Click the hero to drop your own query.
 export type HeroVariant = 'agent' | 'retrieval';
 export const heroVariant: HeroVariant = 'agent';
+
+// ── Motion ───────────────────────────────────────────────────────────────────
+// How the whole site moves (reveals, hero headline, nav, hovers, buttons).
+//   • 'calm'      — quiet and short; the original feel, tidied up
+//   • 'kinetic'   — springy: per-word headline, sliding nav pill, button press
+//   • 'cinematic' — long eases, blur-in reveals, scroll-linked depth
+// Add ?motion=kinetic (etc.) to the URL to preview another preset without
+// changing this; in `npm run dev` a switcher pill also appears bottom-left.
+export const motionPreset: MotionPreset = 'calm';
 
 // What the agent trace hero shows (only used when heroVariant is 'agent').
 // `tools` become the tool nodes. 3–5 names of ≤ 8 characters lay out best;

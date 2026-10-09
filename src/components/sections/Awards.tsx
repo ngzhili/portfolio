@@ -2,12 +2,13 @@
  * Awards — an auto-scrolling marquee of award / honour cards.
  * Content from content/site.ts.
  *
- * The track holds two copies of the cards and scrolls continuously (CSS
- * keyframes). It pauses while the user hovers / focuses / touches a card — or
- * while a detail panel is open — and resumes when interaction ends. Clicking a
- * card expands a detail panel below the strip with the full blurb. Under
- * prefers-reduced-motion the strip becomes a manual scroll-snap row (see
- * globals.css). Mirrors the Certifications section.
+ * The track holds two copies of the cards and scrolls continuously in a rAF
+ * loop (~40px/s). It eases to a stop while the user hovers / focuses / touches
+ * a card, or while a detail panel is open, and eases back up afterwards; it can
+ * also be dragged. Clicking a card expands a detail panel below the strip with
+ * the full blurb; the panel animates both open and closed. The strip keeps moving
+ * under prefers-reduced-motion by design: it is slow, pauses on interaction,
+ * and can be dragged. Mirrors the Certifications section.
  */
 'use client';
 
@@ -105,6 +106,11 @@ export function Awards() {
   const [hovering, setHovering] = useState(false);
 
   const active = awards.find((a) => a.title === selected) ?? null;
+  // Keep the last item rendered while the panel collapses, so closing animates
+  // too (it used to unmount instantly and collapse an empty box).
+  const lastShownRef = useRef(active);
+  if (active) lastShownRef.current = active;
+  const shown = active ?? lastShownRef.current;
   const paused = hovering || selected !== null;
 
   // Drive the marquee with rAF (not a CSS keyframe) so it scrolls even when the
@@ -128,13 +134,21 @@ export function Awards() {
     let raf = 0;
     let last = 0;
     const speed = 40; // px per second
+    const RAMP = 0.35; // s — time constant for easing to a stop / back to speed
+    let vel = 1; // 0..1 share of `speed`; eases instead of jumping on pause/resume
     const step = (now: number) => {
       if (last === 0) last = now;
       const dt = Math.min((now - last) / 1000, 0.1); // clamp across hidden-tab gaps
       last = now;
-      // Auto-advance only when not paused (hover/detail) and not being dragged.
-      if (!pausedRef.current && !draggingRef.current) {
-        xRef.current = wrapTranslate(xRef.current - speed * dt, halfRef.current);
+      if (draggingRef.current) {
+        vel = 0; // the drag owns the position; resume from rest afterwards
+      } else {
+        // Ease toward full speed, or toward a stop while hovered / a panel is open.
+        const target = pausedRef.current ? 0 : 1;
+        vel += (target - vel) * Math.min(1, dt / RAMP);
+        if (vel > 0.001) {
+          xRef.current = wrapTranslate(xRef.current - speed * vel * dt, halfRef.current);
+        }
       }
       track.style.transform = `translateX(${xRef.current}px)`;
       raf = requestAnimationFrame(step);
@@ -276,21 +290,23 @@ export function Awards() {
 
       {/* Detail panel — animated open/close via the grid-rows trick. */}
       <div
-        className={`grid transition-all duration-300 ease-out ${
+        aria-hidden={!active}
+        inert={!active}
+        className={`grid transition-all duration-[calc(var(--m-dur)*1.5)] ease-out ${
           active ? 'mt-6 grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
         }`}
       >
         <div className="overflow-hidden">
-          {active && (
+          {shown && (
             <div className="rounded-2xl border border-accent/30 bg-surface/60 p-6">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                <h3 className="text-lg font-semibold text-text">{active.title}</h3>
+                <h3 className="text-lg font-semibold text-text">{shown.title}</h3>
                 <span className="shrink-0 text-sm font-medium text-faint">
-                  {active.issuer} · {active.date}
+                  {shown.issuer} · {shown.date}
                 </span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-                {active.description}
+                {shown.description}
               </p>
             </div>
           )}

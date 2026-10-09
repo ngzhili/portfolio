@@ -71,7 +71,7 @@ function ExperienceItem({ job, defaultOpen }: { job: Job; defaultOpen: boolean }
 
         {hasBody && (
           <ChevronDownIcon
-            className={`mt-1 shrink-0 text-faint transition-transform duration-300 ${
+            className={`mt-1 shrink-0 text-faint transition-transform duration-[calc(var(--m-dur)*1.5)] ease-[var(--m-ease)] ${
               open ? 'rotate-180' : ''
             }`}
           />
@@ -82,7 +82,7 @@ function ExperienceItem({ job, defaultOpen }: { job: Job; defaultOpen: boolean }
       {hasBody && (
         <div
           id={bodyId}
-          className={`grid transition-all duration-300 ease-out ${
+          className={`grid transition-all duration-[calc(var(--m-dur)*1.5)] ease-out ${
             open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
           }`}
         >

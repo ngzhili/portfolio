@@ -7,14 +7,15 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'reac
 type Variant = 'primary' | 'secondary' | 'ghost';
 type Size = 'md' | 'lg';
 
+// No focus-visible:outline-none here: the global :focus-visible ring must show.
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none';
+  'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-[var(--m-dur)] ease-[var(--m-ease)] active:scale-[var(--m-press)] disabled:opacity-50 disabled:pointer-events-none';
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-accent text-white shadow-lg shadow-accent/25 hover:bg-accent-strong hover:shadow-accent/40 hover:-translate-y-0.5',
+    'bg-accent text-white shadow-lg shadow-accent/25 hover:bg-accent-strong hover:shadow-accent/40 hover:translate-y-[var(--m-lift)]',
   secondary:
-    'border border-border bg-surface text-text hover:border-accent/60 hover:bg-surface-2 hover:-translate-y-0.5',
+    'border border-border bg-surface text-text hover:border-accent/60 hover:bg-surface-2 hover:translate-y-[var(--m-lift)]',
   ghost: 'text-muted hover:text-text hover:bg-surface-2',
 };
 

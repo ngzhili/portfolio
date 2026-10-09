@@ -26,7 +26,7 @@ export async function Projects() {
         {projects.map((project, i) => (
           <Reveal key={project.title} delay={(i % 3) * 0.08} className="h-full">
             <article
-              className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-surface/60 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 ${
+              className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-surface/60 transition-all duration-[calc(var(--m-dur)*1.5)] ease-[var(--m-ease)] hover:translate-y-[var(--m-lift-card)] hover:border-accent/50 ${
                 project.featured ? 'border-accent/30' : 'border-border'
               }`}
             >

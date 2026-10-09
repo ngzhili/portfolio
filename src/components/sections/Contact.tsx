@@ -66,7 +66,7 @@ export function Contact() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-3 rounded-xl border border-border bg-bg/40 p-4 transition-all hover:-translate-y-0.5 hover:border-accent/50"
+                className="group flex items-center gap-3 rounded-xl border border-border bg-bg/40 p-4 transition-all duration-[var(--m-dur)] ease-[var(--m-ease)] hover:translate-y-[var(--m-lift)] hover:border-accent/50"
               >
                 <span className="rounded-lg bg-surface-2 p-2 text-muted transition-colors group-hover:text-text">
                   <Icon />

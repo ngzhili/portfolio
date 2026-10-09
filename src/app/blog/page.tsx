@@ -46,7 +46,7 @@ export default function BlogIndexPage() {
             <Reveal as="li" key={post.slug} delay={i * 0.05}>
               <Link
                 href={`/blog/${post.slug}`}
-                className="group block rounded-2xl border border-border bg-surface/60 p-6 transition-all hover:-translate-y-0.5 hover:border-accent/50 sm:p-7"
+                className="group block rounded-2xl border border-border bg-surface/60 p-6 transition-all duration-[var(--m-dur)] ease-[var(--m-ease)] hover:translate-y-[var(--m-lift)] hover:border-accent/50 sm:p-7"
               >
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-faint">
                   <time dateTime={post.date}>{formatDate(post.date)}</time>

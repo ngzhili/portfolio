@@ -10,7 +10,10 @@ import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { site, SITE_URL } from '@content/site';
+import { MotionProvider } from '@/components/motion/MotionProvider';
+import { MotionSwitcher } from '@/components/motion/MotionSwitcher';
+import { ScrollProgress } from '@/components/motion/ScrollProgress';
+import { site, SITE_URL, motionPreset } from '@content/site';
 
 // Body font: clean, highly legible sans.
 const inter = Inter({
@@ -103,6 +106,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';if(t==='light'){document.documentElement.classList.add('light');}document.documentElement.style.colorScheme=t;}catch(e){}})();`,
           }}
         />
+        {/* Motion preset for the CSS tokens (--m-dur etc.), also pre-paint:
+            ?motion=<preset> if valid, else the default from content/site.ts. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=new URLSearchParams(location.search).get('motion');if(['calm','kinetic','cinematic'].indexOf(m)<0)m=${JSON.stringify(motionPreset)};document.documentElement.setAttribute('data-motion',m);}catch(e){}})();`,
+          }}
+        />
         <JsonLd />
       </head>
       <body className="min-h-screen antialiased">
@@ -113,9 +123,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <Navbar />
-        <main id="main">{children}</main>
-        <Footer />
+        <MotionProvider
+          chrome={
+            <>
+              <ScrollProgress />
+              <MotionSwitcher />
+            </>
+          }
+        >
+          <Navbar />
+          <main id="main">{children}</main>
+          <Footer />
+        </MotionProvider>
       </body>
     </html>
   );

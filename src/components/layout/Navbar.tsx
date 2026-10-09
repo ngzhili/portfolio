@@ -7,8 +7,14 @@
  *    closes on link click, locks body scroll while open, focus moves into menu).
  *
  * Section links smooth-scroll on the home page and route to "/#id" elsewhere.
+ *
+ * Motion follows the active preset: presets with `navPill` slide one shared
+ * highlight between links (layoutId); `calm` cross-fades per link. The mobile
+ * panel and its links animate in and out.
  */
 import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useMotion } from '@/components/motion/MotionProvider';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { sections, sectionHref } from '@/lib/nav';
@@ -23,6 +29,10 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>(sections[0]?.id ?? '');
   const panelRef = useRef<HTMLDivElement>(null);
+  const { tokens } = useMotion();
+  const pillTransition = tokens.spring
+    ? { type: 'spring' as const, stiffness: 400, damping: 32 }
+    : { duration: tokens.dur.base, ease: tokens.ease };
 
   // Add a subtle background once the user scrolls past the top. rAF-throttled
   // and change-only, so a scroll costs one boolean compare per frame rather
@@ -136,10 +146,10 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
         scrolled || open
           ? 'border-b border-border bg-bg/80 backdrop-blur-md'
-          : 'border-b border-transparent'
+          : 'border-b border-transparent backdrop-blur-none'
       }`}
     >
       <nav
@@ -165,12 +175,20 @@ export function Navbar() {
                 <a
                   href={sectionHref(s.id, onHome)}
                   aria-current={isActive ? 'true' : undefined}
-                  className={`rounded-full px-3 py-2 text-sm transition-colors ${
+                  className={`relative block rounded-full px-3 py-2 text-sm transition-colors ${
                     isActive
-                      ? 'bg-accent/10 text-accent-strong'
+                      ? `text-accent-strong ${tokens.navPill ? '' : 'bg-accent/10'}`
                       : 'text-muted hover:text-text'
                   }`}
                 >
+                  {isActive && tokens.navPill && (
+                    <motion.span
+                      layoutId="nav-pill"
+                      aria-hidden
+                      className="absolute inset-0 -z-10 rounded-full bg-accent/15"
+                      transition={pillTransition}
+                    />
+                  )}
                   {s.label}
                 </a>
               </li>
@@ -192,24 +210,50 @@ export function Navbar() {
             aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <CloseIcon /> : <MenuIcon />}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={open ? 'close' : 'menu'}
+                className="block"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: tokens.dur.fast }}
+              >
+                {open ? <CloseIcon /> : <MenuIcon />}
+              </motion.span>
+            </AnimatePresence>
           </button>
         </div>
       </nav>
 
       {/* Mobile menu panel */}
+      <AnimatePresence>
       {open && (
-        <div
+        <motion.div
           id="mobile-menu"
           ref={panelRef}
           tabIndex={-1}
-          className="border-t border-border bg-bg/95 backdrop-blur-md md:hidden"
+          className="overflow-hidden border-t border-border bg-bg/95 backdrop-blur-md md:hidden"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: tokens.dur.base, ease: tokens.spring ? [0.16, 1, 0.3, 1] : tokens.ease }}
         >
           <ul className="space-y-1 px-4 py-4 sm:px-6">
-            {sections.map((s) => {
+            {sections.map((s, i) => {
               const isActive = onHome && active === s.id;
               return (
-                <li key={s.id}>
+                <motion.li
+                  key={s.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    ...(tokens.spring
+                      ? { type: 'spring' as const, ...tokens.spring }
+                      : { duration: tokens.dur.base, ease: tokens.ease }),
+                    delay: 0.04 + i * (tokens.stagger / 2),
+                  }}
+                >
                   <a
                     href={sectionHref(s.id, onHome)}
                     onClick={() => setOpen(false)}
@@ -222,12 +266,13 @@ export function Navbar() {
                   >
                     {s.label}
                   </a>
-                </li>
+                </motion.li>
               );
             })}
           </ul>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </header>
   );
 }

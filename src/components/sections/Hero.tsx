@@ -11,6 +11,8 @@
  */
 import { useRef } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { useMotion } from '@/components/motion/MotionProvider';
+import { enterTransition, type MotionTokens } from '@/lib/motion';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
 import { RetrievalField } from '@/components/ui/RetrievalField';
@@ -43,15 +45,20 @@ const chunkLabels = [
   ),
 ];
 
-// Stagger children in on load. Under reduced motion they appear at once.
-const container = {
+// Stagger children in on load, timed by the motion preset. Under reduced
+// motion they appear at once.
+const makeContainer = (t: MotionTokens) => ({
   hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] } },
-};
+  show: { transition: { staggerChildren: t.stagger, delayChildren: 0.05 } },
+});
+const makeItem = (t: MotionTokens) => ({
+  hidden: { opacity: 0, y: Math.round(t.enter.y * 0.75) },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { ...enterTransition(t), opacity: { duration: t.dur.base, ease: t.ease } },
+  },
+});
 const containerStill = { hidden: {}, show: {} };
 // `y` is reset explicitly: the server renders the animated variant's offset,
 // and leaving it out here would strand the copy 20px low.
@@ -60,19 +67,112 @@ const itemStill = {
   show: { opacity: 1, y: 0, transition: { duration: 0 } },
 };
 
+const H1_CLASS = 'text-[clamp(2.25rem,6.5vw,4rem)] font-bold leading-[1.05]';
+
+/**
+ * The headline, animated per the preset's `headline` treatment:
+ *   mask   words rise out of their own clipping masks, near-together
+ *   words  each word springs up with a little rotation, one after another
+ *   rise   the whole line rises out of a blur while its tracking tightens
+ * The lead is split into words; the gradient accent stays one unit (one
+ * inline-block) so its gradient runs across the whole phrase.
+ */
+function Headline({ tokens, still }: { tokens: MotionTokens; still: boolean }) {
+  const lead = site.headline.lead.trim().split(/\s+/);
+  const units = [
+    ...lead.map((text) => ({ text, accent: false })),
+    { text: site.headline.accent, accent: true },
+  ];
+  const cls = (accent: boolean) => `inline-block ${accent ? 'text-gradient' : ''}`;
+
+  if (still) {
+    return (
+      <h1 className={H1_CLASS}>
+        {site.headline.lead}
+        <span className={cls(true)}>{site.headline.accent}</span>
+      </h1>
+    );
+  }
+
+  if (tokens.headline === 'rise') {
+    return (
+      <motion.h1
+        className={H1_CLASS}
+        initial={{ opacity: 0, y: 40, filter: 'blur(12px)', letterSpacing: '0.02em' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)', letterSpacing: '-0.02em' }}
+        transition={{ duration: tokens.dur.slow * 1.2, ease: tokens.ease, delay: 0.15 }}
+      >
+        {site.headline.lead}
+        <span className={cls(true)}>{site.headline.accent}</span>
+      </motion.h1>
+    );
+  }
+
+  return (
+    <h1 className={H1_CLASS}>
+      {units.map((u, i) => {
+        const sep = u.accent ? '' : ' ';
+        if (tokens.headline === 'mask') {
+          return (
+            <span key={i}>
+              {/* Padding + matching negative margin so descenders aren't clipped. */}
+              <span className="-mb-[0.14em] inline-block overflow-hidden pb-[0.14em] align-bottom">
+                <motion.span
+                  className={cls(u.accent)}
+                  initial={{ y: '110%' }}
+                  animate={{ y: '0%' }}
+                  transition={{ duration: tokens.dur.slow * 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.12 + i * 0.03 }}
+                >
+                  {u.text}
+                </motion.span>
+              </span>
+              {sep}
+            </span>
+          );
+        }
+        // words
+        return (
+          <span key={i}>
+            <motion.span
+              className={cls(u.accent)}
+              initial={{ opacity: 0, y: '0.45em', rotate: 6, scale: 0.92 }}
+              animate={{ opacity: 1, y: '0em', rotate: 0, scale: 1 }}
+              transition={{
+                type: 'spring',
+                stiffness: 320,
+                damping: 18,
+                delay: 0.1 + i * 0.07,
+                opacity: { duration: tokens.dur.fast, delay: 0.1 + i * 0.07 },
+              }}
+            >
+              {u.text}
+            </motion.span>
+            {sep}
+          </span>
+        );
+      })}
+    </h1>
+  );
+}
+
 export function Hero() {
   // The background listens on this section, so clicks anywhere in the hero
   // (except on the links) interact with it — see the field components.
   const heroRef = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
-  const c = reduce ? containerStill : container;
-  const it = reduce ? itemStill : item;
+  const reduce = !!useReducedMotion();
+  const { tokens } = useMotion();
+  const c = reduce ? containerStill : makeContainer(tokens);
+  const it = reduce ? itemStill : makeItem(tokens);
 
   // Fade the scroll cue out as the user leaves the hero.
   const { scrollY } = useScroll();
   const cueOpacity = useTransform(scrollY, [0, 200], [1, 0]);
   // Fade the background out over the first chunk of scroll.
   const shaderOpacity = useTransform(scrollY, [0, 500], [1, 0]);
+  // Scroll-linked presets: the copy drifts up and dims a little as you leave.
+  const copyY = useTransform(scrollY, [0, 500], [0, -60]);
+  const copyOpacity = useTransform(scrollY, [0, 500], [1, 0.5]);
+  const parallax = tokens.scrollLinked && !reduce;
 
   const isAgent = heroVariant !== 'retrieval';
 
@@ -99,7 +199,13 @@ export function Hero() {
       </motion.div>
 
       <Container className="relative z-10 py-20">
-        <motion.div variants={c} initial="hidden" animate="show" className="max-w-3xl">
+        <motion.div
+          variants={c}
+          initial="hidden"
+          animate="show"
+          style={parallax ? { y: copyY, opacity: copyOpacity } : undefined}
+          className="max-w-3xl"
+        >
           <motion.p
             variants={it}
             className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-4 py-1.5 text-sm text-muted backdrop-blur"
@@ -108,13 +214,7 @@ export function Hero() {
             Open to new opportunities &middot; {site.location}
           </motion.p>
 
-          <motion.h1
-            variants={it}
-            className="text-[clamp(2.25rem,6.5vw,4rem)] font-bold leading-[1.05]"
-          >
-            {site.headline.lead}
-            <span className="text-gradient">{site.headline.accent}</span>
-          </motion.h1>
+          <Headline tokens={tokens} still={reduce} />
 
           <motion.p
             variants={it}
@@ -151,7 +251,7 @@ export function Hero() {
                 aria-label={label}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                className="rounded-full border border-border bg-surface/60 p-2.5 text-muted transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:text-text"
+                className="rounded-full border border-border bg-surface/60 p-2.5 text-muted transition-all duration-[var(--m-dur)] ease-[var(--m-ease)] hover:translate-y-[var(--m-lift)] hover:border-accent/60 hover:text-text"
               >
                 <Icon />
               </a>
