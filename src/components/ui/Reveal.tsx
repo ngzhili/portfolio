@@ -11,7 +11,8 @@
  *
  * Usage: <Reveal delay={0.1}>...</Reveal>
  */
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useStableReducedMotion } from '@/components/motion/useStableReducedMotion';
 import type { ReactNode } from 'react';
 import { useMotion } from '@/components/motion/MotionProvider';
 import { enterTransition } from '@/lib/motion';
@@ -28,7 +29,7 @@ export function Reveal({
   as?: 'div' | 'li' | 'span';
 }) {
   const { tokens } = useMotion();
-  const reduce = useReducedMotion();
+  const reduce = useStableReducedMotion();
   const { y, scale } = tokens.enter;
   // Keep the filter key whenever the preset blurs, even at 0px under reduced
   // motion, so the animation always clears a blur the static HTML may carry.

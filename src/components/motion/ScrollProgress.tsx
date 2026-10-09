@@ -4,12 +4,13 @@
  * ScrollProgress — a 2px reading-progress bar under the navbar. Only in
  * presets with `scrollLinked`, and not under reduced motion.
  */
-import { motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import { useStableReducedMotion } from './useStableReducedMotion';
 import { useMotion } from './MotionProvider';
 
 export function ScrollProgress() {
   const { tokens } = useMotion();
-  const reduce = useReducedMotion();
+  const reduce = useStableReducedMotion();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 40, restDelta: 0.001 });
 

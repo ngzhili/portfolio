@@ -6,7 +6,8 @@
  * renders a plain div so layout is identical and no scroll listener exists.
  */
 import { useRef, type ReactNode } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useStableReducedMotion } from './useStableReducedMotion';
 import { useMotion } from './MotionProvider';
 
 type Props = { children: ReactNode; className?: string };
@@ -24,7 +25,7 @@ function DriftActive({ children, className = '' }: Props) {
 
 export function Drift({ children, className = '' }: Props) {
   const { tokens } = useMotion();
-  const reduce = useReducedMotion();
+  const reduce = useStableReducedMotion();
   if (!tokens.scrollLinked || reduce) return <div className={className}>{children}</div>;
   return <DriftActive className={className}>{children}</DriftActive>;
 }

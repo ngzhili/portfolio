@@ -10,7 +10,8 @@
  *   'retrieval' → RetrievalField  (the original vector-store top-k field)
  */
 import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useStableReducedMotion } from '@/components/motion/useStableReducedMotion';
 import { useMotion } from '@/components/motion/MotionProvider';
 import { enterTransition, type MotionTokens } from '@/lib/motion';
 import { Container } from '@/components/layout/Container';
@@ -159,7 +160,7 @@ export function Hero() {
   // The background listens on this section, so clicks anywhere in the hero
   // (except on the links) interact with it — see the field components.
   const heroRef = useRef<HTMLElement>(null);
-  const reduce = !!useReducedMotion();
+  const reduce = useStableReducedMotion();
   const { tokens } = useMotion();
   const c = reduce ? containerStill : makeContainer(tokens);
   const it = reduce ? itemStill : makeItem(tokens);
