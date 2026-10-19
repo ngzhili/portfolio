@@ -221,53 +221,93 @@ export type AgentSystem = {
 
 export const agentSystems: AgentSystem[] = [
   {
-    title: 'GenAIOps framework & agent runtime',
+    title: 'GenAIOps platform & agent runtime (the "golden path")',
     summary:
-      'Chief architect of an organization-wide, end-to-end GenAIOps framework that takes GenAI models and multi-agent systems from prototype into production products.',
+      'Chief architect of the organization-wide platform that standardizes how teams build and deploy GenAI models and multi-agent applications to production, adopted by 20 teams and applications.',
     bullets: [
-      'Architected the full agentic stack: frameworks, runtime, harness and UI-Agent-Tool communication.',
-      'Built in observability, evaluation and sandboxing so agent behaviour is measurable and safe to ship.',
-      'Designed memory, skills and knowledge-retrieval layers shared across agent products.',
-      'Accelerated development and deployment for teams building on the platform.',
+      'Cut time-to-production from 5 weeks to 2 days by giving every team the same agent harnesses, OpenAI-compatible model gateway, MCP tool-server registry, evaluation, observability, and sandboxed execution.',
+      'Designed the memory, skills, and knowledge-retrieval layers shared across agent products.',
+      'Shipped 4 GenAI products from concept to production, iterating directly with operational end users; awarded 3× Group Performance Award.',
+      'Drove Claude Code adoption through the on-prem gateway across the 20-engineer team in an air-gapped environment: median issue-open-to-merge lead time fell from 5 days to 1 day across ~40 features in 3 months.',
+      'Led 5-engineer project teams and mentored 5 engineers; 3 now independently own production services.',
+      'Selected for DSO\'s Leadership Development Programme (top 5% of eligible engineers).',
     ],
-    layers: ['runtime', 'harness', 'tools', 'memory', 'skills', 'retrieval', 'eval', 'observability', 'sandbox'],
-    tags: ['Multi-Agent Systems', 'LangGraph', 'Python', 'FastAPI', 'Observability', 'Evaluation'],
-    metric: { value: '2000+', label: 'production users' },
+    layers: ['runtime', 'harness', 'gateway', 'tools', 'memory', 'skills', 'retrieval', 'eval', 'observability', 'sandbox'],
+    tags: ['Multi-agent Orchestration', 'LangGraph', 'MCP', 'Python', 'FastAPI', 'Observability', 'Evaluation'],
+    metric: { value: '5 wk → 2 d', label: 'time-to-production, 20 teams' },
     featured: true,
+  },
+  {
+    title: 'Sandboxed agent-harness runtime',
+    summary:
+      'Every conversation runs in its own gVisor-isolated sandbox pod on Kubernetes behind a stateless control plane.',
+    bullets: [
+      'All egress and credentials brokered by a separate proxy, so agents never hold secrets.',
+      'Warm pools, persistent per-conversation storage, and snapshot/restore let sessions resume on demand.',
+      'Load-tested to 150 concurrent sandboxes on a 3-node cluster with sub-second warm starts.',
+    ],
+    tags: ['gVisor', 'Kubernetes', 'Sandboxing', 'Agent Harnesses'],
+    metric: { value: '150', label: 'concurrent sandboxes, 3 nodes' },
   },
   {
     title: 'Streaming agent chat platform with Human-in-the-Loop',
     summary:
       'Full-stack AI chatbot platforms that stream every agent step to the user as it happens.',
     bullets: [
-      'Real-time streaming of agent steps and tool execution.',
-      'State sync between UI, agent and tools.',
+      'Real-time streaming of agent steps, tool execution, and state sync between UI, agent, and tools.',
       'Human-in-the-Loop approval workflows for sensitive actions.',
+      '~450 monthly active users, ~200 messages/day, 85% thumbs-up rating.',
     ],
-    tags: ['React', 'Real-time Streaming UI', 'Tool Use', 'Human-in-the-Loop'],
+    tags: ['React', 'TypeScript', 'FastAPI', 'Real-time Streaming UI', 'Human-in-the-Loop'],
+    metric: { value: '~2,000', label: 'registered users' },
   },
   {
-    title: 'Adaptive RAG & self-reflection at scale',
+    title: 'Multilingual, multimodal RAG with citations',
     summary:
-      'Retrieval pipelines that decide how to search, check their own answers and cite their sources.',
+      'Retrieval pipelines that decide how to search, check their own answers, and cite their sources, across Southeast Asian languages.',
     bullets: [
-      'Adaptive RAG and self-reflection pipelines with multi-turn reasoning and memory.',
-      'Multilingual, multimodal retrieval scaled over millions of files.',
-      'Citation-backed responses for traceable answers.',
+      'Adaptive retrieval, self-reflection, and multi-turn memory over millions of files.',
+      '8 document types: PDF, Office, images, and text.',
+      'Answer accuracy rose from 28% to 86% on a 2,000-pair internal benchmark.',
     ],
-    tags: ['RAG', 'Multimodal', 'Multilingual', 'Vector DBs', 'Citations'],
-    metric: { value: 'Millions', label: 'of files indexed' },
+    tags: ['RAG', 'Hybrid Search', 'Multimodal', 'Multilingual', 'Citations'],
+    metric: { value: '28% → 86%', label: 'answer accuracy' },
+  },
+  {
+    title: 'Automated RAG benchmarking framework',
+    summary:
+      'Synthetic multilingual QA pairs verified by LLM-as-a-judge, with human review of a sample, so every RAG change is scored the same way.',
+    bullets: [
+      'Evaluation turnaround cut from ~20 days of manual review to 6 hours.',
+      'Scores the 2,000-pair benchmark behind the RAG accuracy numbers.',
+      'Adopted by 10 of the 20 platform teams.',
+    ],
+    tags: ['LLM-as-a-Judge', 'Synthetic Data', 'Ragas', 'Evaluation'],
+    metric: { value: '20 d → 6 h', label: 'evaluation turnaround' },
   },
   {
     title: 'On-prem GPU inference & CI/CD for AI apps',
     summary:
-      'The serving and delivery layer underneath the agents: self-hosted models and repeatable releases.',
+      'The serving and delivery layer underneath the agents: self-hosted models on A100/H100/H200 clusters and repeatable releases, all air-gapped.',
     bullets: [
-      'On-prem GPU/HPC inference microservices with autoscaling and monitoring.',
-      'CI/CD pipelines purpose-built for AI applications.',
-      'Awarded 3× Group Performance Award.',
+      '~10k requests/day across 5 applications at 99.9% uptime over 12 months, with autoscaling and dashboards.',
+      'CI/CD across dev, test, and production moved releases from weekly to daily.',
+      'Release preparation cut from 2 days to 30 minutes.',
     ],
-    tags: ['vLLM', 'Kubernetes', 'Docker', 'GPU / HPC', 'Autoscaling'],
+    tags: ['vLLM', 'Kubernetes', 'Docker', 'GPU / HPC', 'CI/CD'],
+    metric: { value: '99.9%', label: 'uptime, ~10k req/day' },
+  },
+  {
+    title: 'Event-driven data platform for LLM training sets',
+    summary:
+      'An on-prem pipeline for training datasets, built to scale to billions of files and petabytes of data.',
+    bullets: [
+      'RabbitMQ topic exchanges, dead-letter replay, byte-offset row indexing, PostgreSQL.',
+      'Profiling showed a GIL-bound, disk-IOPS-limited workload, so the two-pass extract-then-index pipeline became a single-read consumer scaled to 16 replicas.',
+      'Large-file indexing throughput rose from 22 to 130 files/s with one disk read per file instead of two.',
+    ],
+    tags: ['RabbitMQ', 'PostgreSQL', 'Event-driven Microservices', 'Python'],
+    metric: { value: '5.8×', label: 'indexing throughput' },
   },
 ];
 
