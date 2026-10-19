@@ -731,7 +731,7 @@ export const awards: Award[] = [
     date: '2024 – 2026',
     logo: '/logos/dso.jpg',
     description:
-      'Awarded three times for delivering organization-wide AI chatbot products — from concept to production — used across DSO.',
+      'Awarded three times for delivering organization-wide AI chatbot products — from concept to production.',
   },
   {
     title: '1st Place, AI/ML — Anaconda Data Science Expo 2023',
