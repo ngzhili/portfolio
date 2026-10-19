@@ -122,12 +122,19 @@ export const experience: Experience[] = [
     period: 'Feb 2024 — Present',
     location: 'Singapore',
     description:
-      'Chief architect of an organization-wide, end-to-end GenAIOps framework that accelerated development and deployment of GenAI models and multi-agent systems into production products.',
+      'Chief architect of the organization-wide GenAIOps platform (the "golden path") that standardizes how teams build and deploy GenAI models and multi-agent applications to production — adopted by 20 teams and applications, cutting time-to-production from 5 weeks to 2 days.',
     highlights: [
-      'Architected the full agentic stack — frameworks, runtime, harness, UI-Agent-Tool communication, model inference, observability, evaluation, sandboxing, memory, skills, and knowledge retrieval.',
-      'Designed full-stack AI chatbot platforms with real-time streaming agent steps, tool execution, state sync, and Human-in-the-Loop workflows.',
-      'Built adaptive RAG, self-reflection pipelines, and multi-turn reasoning/memory; scaled multilingual, multimodal retrieval over millions of files with citation-backed responses.',
-      'Engineered CI/CD for AI apps and on-prem GPU/HPC inference microservices with autoscaling and monitoring. Awarded 3× Group Performance Award.',
+      'Architected the full agentic stack — agent harnesses, an OpenAI-compatible model gateway, an MCP tool-server registry, evaluation, observability, memory, skills, knowledge retrieval, and sandboxed execution.',
+      'Built the agent-harness runtime: every conversation runs in its own gVisor-isolated sandbox pod on Kubernetes behind a stateless control plane, with all egress and credentials brokered by a separate proxy so agents never hold secrets. Warm pools, persistent per-conversation storage, and snapshot/restore let sessions resume on demand — load-tested to 150 concurrent sandboxes on a 3-node cluster with sub-second warm starts.',
+      'Operated on-premise GPU inference microservices (A100/H100/H200 clusters) with autoscaling, dashboards, and observability — ~10k requests/day across 5 applications at 99.9% uptime over 12 months in an air-gapped environment.',
+      'Designed an event-driven data platform for on-prem LLM training datasets (RabbitMQ topic exchanges, dead-letter replay, byte-offset row indexing, PostgreSQL) built to scale to billions of files and petabytes of data. After profiling showed a GIL-bound, disk-IOPS-limited workload, merged the two-pass extract-then-index pipeline into a single-read consumer and scaled it to 16 replicas — large-file indexing throughput rose from 22 to 130 files/s (5.8×) with one disk read per file instead of two.',
+      'Scaled multilingual (Southeast Asian languages), multimodal RAG with citation-backed answers over millions of files across 8 document types (PDF, Office, images, text) using adaptive retrieval, self-reflection, and multi-turn memory — answer accuracy rose from 28% to 86% on a 2,000-pair internal benchmark.',
+      'Built an automated RAG benchmarking framework that generates synthetic multilingual QA pairs verified by LLM-as-a-judge with human review of a sample — evaluation turnaround fell from ~20 days of manual review to 6 hours; adopted by 10 of the 20 platform teams.',
+      'Designed and launched full-stack AI chatbot platforms (React/TypeScript, FastAPI) with real-time streaming of agent steps, tool execution, state synchronization, and human-in-the-loop workflows — ~2,000 registered users, ~450 monthly active users, ~200 messages/day, 85% thumbs-up rating.',
+      'Drove adoption of agentic coding (Claude Code, served through the on-prem model gateway) across the entire 20-engineer team in an air-gapped environment — median issue-open-to-merge lead time fell from 5 days to 1 day across ~40 features in 3 months.',
+      'Built CI/CD pipelines for the chatbot platforms across development, testing, and production — releases moved from weekly to daily, and release preparation fell from 2 days to 30 minutes.',
+      'Gathered requirements from operational users and iterated directly with end users to ship 4 GenAI products from concept to production. Awarded 3× Group Performance Award and selected for DSO\'s Leadership Development Programme (management fast-track, top 5% of eligible engineers).',
+      'Led 5-engineer project teams and mentored 5 engineers through onboarding, design reviews, and code reviews — 3 now independently own production services.',
     ],
   },
   {
@@ -137,10 +144,10 @@ export const experience: Experience[] = [
     period: 'Aug 2023 — Feb 2024',
     location: 'Singapore',
     description:
-      'Led a team of 5 analysts building scalable regional data marts that powered FP&A analytics across 11 countries.',
+      'Led a team of 5 analysts building 9 regional data marts fed by 6 Airflow/PySpark pipelines, used by a 15-person regional FP&A team across 11 countries.',
     highlights: [
-      'Architected CI/CD and Git workflows for PySpark pipelines across dev/staging/prod.',
-      'Built internal tooling for automated Apache Airflow deployment, backfills, and workflow versioning.',
+      'Architected CI/CD (GitLab, Jenkins) and Git workflows for PySpark pipelines across dev/staging/prod.',
+      'Built internal tooling for automated Apache Airflow deployment, backfills, and workflow versioning — a typical backfill went from ~2 days of manual work to under 1 hour.',
     ],
   },
   {
@@ -150,22 +157,23 @@ export const experience: Experience[] = [
     period: 'May 2022 — Jul 2022',
     location: 'Singapore',
     description:
-      'Built a scalable retail shelf-optimization analytics dashboard (Python, Pandas, Spark SQL) deployed via KNIME across 65 brands and 15 markets in the AMA region, increasing product value share by 20%.',
+      'Built a scalable retail shelf-optimization analytics dashboard (Python, Pandas, Spark SQL) deployed via KNIME with cross-functional stakeholders across 65 brands and 15 markets in the AMA region, driving assortment strategies that supported 20% product value-share growth.',
     highlights: [
+      'Developed Spark SQL workflows on Azure Databricks, saving 50+ analysts an estimated ~4 hours/week each of exploratory-analysis time.',
       'Debugged Pandas pipelines to ensure data integrity, increasing insight accuracy by 30%.',
-      'Wrote Apache Spark SQL on Azure Databricks, saving 50+ analysts time on EDA.',
+      'Presented technical solutions to non-technical product owners and business stakeholders.',
     ],
   },
   {
-    role: 'Data Scientist',
+    role: 'Regional Data Scientist (Part-time)',
     company: 'CARRO',
     logo: '/logos/carro.png',
     period: 'Jan 2022 — May 2022',
     location: 'Singapore',
     description:
-      'Designed an ETL data pipeline for an APAC team of 10 data scientists, reducing manual workload by 60%.',
+      'Promoted from intern to part-time Regional Data Scientist. Designed ETL and dataset-preparation pipelines (AWS Lambda, SageMaker, Supervisely API) for a 10-person APAC data science team, reducing manual workload by 60%.',
     highlights: [
-      'Built a PyTorch Detectron2 pixel-wise verification pipeline to flag annotation errors, cutting label verification cost/time by 50%.',
+      'Built automated annotation-QA pipelines (PyTorch Detectron2 pixel-wise instance segmentation to flag annotation errors) and an internal annotation-review platform used by 20 overseas annotators, cutting labeling cost per image by 74%.',
       'Automated dataset retrieval via Supervisely API and AWS Boto3; multi-label stratified splits improved model accuracy by 20%.',
     ],
   },
@@ -176,7 +184,10 @@ export const experience: Experience[] = [
     period: 'Dec 2021 — Jan 2022',
     location: 'Singapore',
     description:
-      'Evaluated the top 5 SOTA scene-segmentation models on real-time ground/aerial autonomous-vehicle video using Python, PyTorch, OpenCV, and OpenMMLab — saving 15 ML engineers time on model selection.',
+      'Benchmarked the top 5 SOTA scene-segmentation models on real-time ground/aerial autonomous-vehicle video using Python, PyTorch, OpenCV, and OpenMMLab — saving 15 ML engineers time on model selection.',
+    highlights: [
+      'Presented deployment recommendations to senior management.',
+    ],
   },
   {
     role: 'Data Scientist Intern',
@@ -185,10 +196,10 @@ export const experience: Experience[] = [
     period: 'May 2021 — Dec 2021',
     location: 'Singapore',
     description:
-      'Led a computer-vision team of 5 to deploy an AI car-damage detection tool across 5 countries.',
+      'Led a 5-member computer-vision team and managed stakeholders to deploy an AI car-damage detection tool across 5 countries.',
     highlights: [
-      'Built a Keras-based ETL pipeline (AWS Lambda + SageMaker) filtering 100K+ images, cutting prep time by 70%.',
-      'Trained TensorFlow YOLO detectors (70% AP) and OpenCV/OCR license-plate recognition (CER 10%).',
+      'Built a Keras-based ETL pipeline (AWS Lambda + SageMaker) filtering 100K+ images, cutting data preparation time by 70%.',
+      'Trained TensorFlow YOLO damage-detection models (71% mAP) and OpenCV perspective-correction + OCR pipelines for license plates (<10% character error rate).',
     ],
   },
 ];
@@ -403,19 +414,19 @@ export type SkillGroup = {
 export const skills: SkillGroup[] = [
   {
     category: 'Agents & GenAI Systems',
-    items: ['Agentic Workflows', 'Multi-Agent Systems', 'LLMs', 'RAG', 'Tool Use', 'Human-in-the-Loop', 'Evaluation', 'Observability', 'Multimodal AI', 'Fine-tuning', 'Synthetic Data', 'Model Inference & Optimization'],
+    items: ['LLMs', 'RAG', 'Agentic Workflows', 'Multi-agent Orchestration', 'Agent Harnesses', 'Tool Use', 'Human-in-the-Loop', 'MCP', 'A2A', 'ACP', 'AG-UI', 'A2UI', 'Context Engineering', 'Hybrid Search', 'Multimodal AI', 'Evaluation & Benchmarking', 'LLM-as-a-Judge', 'Fine-tuning', 'Synthetic Data', 'Model Inference & Optimization', 'Observability', 'Sandboxing & Guardrails (gVisor)', 'OpenAI-compatible APIs', 'Agentic Coding (Claude Code)'],
   },
   {
     category: 'GenAI Frameworks & Tools',
-    items: ['LangGraph', 'LangChain', 'Pydantic', 'vLLM', 'Ollama', 'Hugging Face', 'Transformers', 'PyTorch', 'TensorFlow', 'Scikit-Learn'],
+    items: ['LangGraph', 'LangChain', 'LangChain Deep Agents', 'Pydantic', 'LiteLLM', 'vLLM', 'Ollama', 'Langfuse', 'Ragas', 'Docling', 'Hugging Face', 'Transformers', 'PyTorch', 'TensorFlow', 'Scikit-Learn'],
   },
   {
     category: 'Backend & Platform',
-    items: ['Python', 'FastAPI', 'Flask', 'Node.js', 'REST APIs', 'Microservices', 'PostgreSQL', 'MongoDB', 'Redis', 'Docker', 'Kubernetes', 'RabbitMQ'],
+    items: ['Python', 'FastAPI', 'Flask', 'Node.js', 'asyncio', 'REST APIs', 'Event-driven Microservices', 'RabbitMQ', 'PostgreSQL', 'MongoDB', 'Redis', 'Keycloak', 'Docker', 'Kubernetes', 'OpenShift'],
   },
   {
     category: 'Cloud & Data Engineering',
-    items: ['AWS (SageMaker, Lambda, S3, EC2)', 'GCP (Vertex AI, BigQuery, Dataflow)', 'Azure', 'Databricks', 'Apache Spark', 'Airflow', 'ETL Pipelines', 'Vector DBs (Elasticsearch, PgVector)'],
+    items: ['AWS (SageMaker, Lambda, S3, EC2)', 'GCP (Vertex AI, BigQuery, Dataflow)', 'Azure', 'Databricks', 'Apache Spark', 'Airflow', 'ETL Pipelines', 'Vector DBs (Elasticsearch, PgVector)', 'CI/CD (GitLab, Jenkins)'],
   },
   {
     category: 'Frontend',
@@ -674,6 +685,24 @@ export type Award = {
 
 export const awards: Award[] = [
   {
+    title: 'DSO Leadership Development Programme',
+    issuer: 'DSO National Laboratories',
+    // TODO: confirm selection date.
+    date: '2026',
+    logo: '/logos/dso.jpg',
+    description:
+      'Selected for DSO\'s Leadership Development Programme — a management fast-track for the top 5% of eligible engineers.',
+  },
+  {
+    title: 'Group Performance Award (3×)',
+    issuer: 'DSO National Laboratories',
+    // TODO: confirm award dates.
+    date: '2024 – 2026',
+    logo: '/logos/dso.jpg',
+    description:
+      'Awarded three times for delivering organization-wide AI chatbot products — from concept to production — used across DSO.',
+  },
+  {
     title: '1st Place, AI/ML — Anaconda Data Science Expo 2023',
     issuer: 'Anaconda, Inc.',
     date: 'Sep 2023',
@@ -798,7 +827,7 @@ export const awards: Award[] = [
 export const about = {
   // Each string is a paragraph.
   bio: [
-    'I’m Ng Zhili, a Lead Solutions Architect and Full-Stack Software Engineer specializing in Generative AI. Over the past 3+ years I’ve designed and scaled production GenAIOps pipelines serving 2000+ users and led teams of 20+ engineers and analysts.',
+    'I’m Ng Zhili, a Lead Solutions Architect and Full-Stack Software Engineer specializing in Generative AI. Over the past 3+ years I’ve designed and scaled a production GenAIOps platform adopted by 20 teams, shipped 4 GenAI products serving 2000+ users, and led teams of 20+ engineers and analysts.',
     'I build multilingual, multimodal RAG and citation systems, agentic full-stack applications, and the runtime, observability, and evaluation infrastructure behind them — taking products from business requirements all the way to production deployment.',
     'I hold a First-Class BEng in Mechanical Engineering (Robotics) with a Computer Science minor and completed the University Scholars Programme (USP) from NUS. Outside of work, I enjoy running, swimming, and hiking.',
   ],
