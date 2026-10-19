@@ -725,15 +725,6 @@ export type Award = {
 
 export const awards: Award[] = [
   {
-    title: 'DSO Leadership Development Programme',
-    issuer: 'DSO National Laboratories',
-    // TODO: confirm selection date.
-    date: '2026',
-    logo: '/logos/dso.jpg',
-    description:
-      'Selected for DSO\'s Leadership Development Programme — a management fast-track for the top 5% of eligible engineers.',
-  },
-  {
     title: 'Group Performance Award (3×)',
     issuer: 'DSO National Laboratories',
     // TODO: confirm award dates.
